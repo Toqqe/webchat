@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_title %}
+Chat Room
+{% endblock  %}
+
+{% block page_css_files %}
+<link rel="stylesheet" href={% static "chat/room.css" %}>
+{% endblock  %}
+
+{% block page_content %}
+
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <img src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
+            Bootstrap
+        </a>
+        {{request.user}}
+        </div>
+    </nav>
+
+    <div class="container my-5">
+            
+            <div class="d-flex justify-content-center">
+                    <div class="online p-4 mb-3 bg-light rounded">
+
+                            <p>Users Online</p>
+                            <hr>
+                                <ul id="idOnlineUsers" class="d-flex flex-column users-online">
+
+                                    {% for online_user in online_users.users.all %}
+                                        {% if online_user.username != request.user.username %}
+                                        <li><i class="p-2 bi bi-chat-square-fill"></i>{{online_user}}</li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                </ul>
+
+                    </div>
+            
+
+            <div class="d-flex justify-content-between card mx-5 w-50" >
+                    <div id="chat-text" class="main-chat card-body ">
+                        {% for message in messages %}
+                            {% if request.user != message.author %}
+
+                            <div id='chat-text' class="d-flex justify-content-end ">
+                                <p class="mx-1 mt-auto bd-highlight message-opposed p-2">{{message.context}}</p>
+                                <p class="bd-highlight p-2 mt-auto">
+                                    <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
+                                </p>
+                            </div>
+
+                            {% else %}
+                            <div id='chat-text' class="d-flex">
+                                <p class="bd-highlight p-2 mt-auto">
+                                    <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
+                                </p>
+                                <p class="mx-1 mt-auto bd-highlight message p-2">{{message.context}}</p>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        
+                </div>
+                <div class="card-footer row g-0">
+                    <input id="chat-message-input" type="text" class="col-md-10"><br>
+                    <i id="chat-message-submit" type="button" class="col-md-2 bi bi-send text-center"></i>
+                </div>
+            </div>
+        </div>
+
+        {{ room_name|json_script:"room-name" }}
+
+    </div>
+    
+    <script>
+        console.log(window.location.host)
+        const scrollBarChat = document.querySelector(".main-chat")
+        const onlineUsers = document.getElementById("idOnlineUsers")
+
+        window.addEventListener("load", ()=> {
+            scrollBarChat.scrollTo(0, scrollBarChat.scrollHeight);
+        }) ;
+
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + roomName
+            + '/'
+        );
+
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            
+            const listItems = Array.from(document.querySelectorAll('#idOnlineUsers li'))
+            console.log("tutaj jest losowany nickname dla gosci"); //4
+
+            if(data.message == "user_connected"){ 
+
+                if(!(listItems.find(el => el.textContent === data.user_online))){
+                    console.log("ack")
+                    console.log(listItems)
+                    onlineUsers.insertAdjacentHTML("beforeend", "<li><i class='bi bi-chat-square-fill p-2'> </i>" + data.user_online + "</li>");
+
+                }
+            }
+            else if(data.message == "user_disconnected"){
+                if((listItems.find(el => el.textContent === data.user_online))){
+                    console.log("del")
+                    console.log(listItems)
+                    listItems.pop(data.user_online)
+
+                }
+
+            }
+            else{
+                let user = "{{request.user}}"
+                let img = "{{request.user.user_img.url}}"
+
+                let user_message = 
+                    "<div id='chat-text' class='d-flex'>" + 
+                        "<p class='bd-highlight p-2 mt-auto'>" +
+                            "<img class='rounded-circle img-message mt-auto' src='" + img +"' alt='image'</img>"+
+                        "</p>"+
+                        "<p class='mx-1 mt-auto bd-highlight message p-2'>" + data.message + "</p>" +
+                    "</div>"
+
+                if(user != data.username){
+                    user_message =
+                    "<div id='chat-text' class='d-flex justify-content-end'>" + 
+                        "<p class='mx-1 mt-auto bd-highlight message-opposed p-2'>" + data.message + "</p>" +
+                        "<p class='bd-highlight p-2 mt-auto'>" +
+                            "<img class='rounded-circle img-message mt-auto'  src='" + img + "</img>" +
+                        "</p>" 
+                    "</div>"
+                }
+                document.getElementById('chat-text').insertAdjacentHTML("beforeend",user_message)
+                scrollBarChat.scrollTo(0, scrollBarChat.scrollHeight);
+            }
+
+        
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) { //1
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            const btnSend = document.getElementById("chat-message-submit");
+            let user = "{{request.user}}"
+
+            console.log("wysyłam po kliknieciu przycisku nazwe usera");
+            if(message != ""){
+
+                chatSocket.send(JSON.stringify({
+                'username': user,
+                'message': message
+                }));
+                messageInputDom.value = '';
+            }else{
+                alert("Pusta wiadomość!")
+            }   
+        };
+        
+    </script>
+
+
+{% endblock  %}

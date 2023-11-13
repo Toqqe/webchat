@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Chat{% endblock  %}
+
+{% block page_css_files %}
+<link rel="stylesheet" href="{% static "chat/chat.css" %}">
+<link rel="stylesheet" href={% static "chat/chat_additional.css" %}>
+{{ request.user.username|json_script:"request-user" }}
+{% endblock  %}
+
+{% block page_content %}
+
+
+<div class="main-window">
+
+            <nav class="navbar navbar-light bg-light">
+              <div class="container-fluid">
+                <a class="navbar-brand" href="/">Navbar</a>
+                
+                <form id="search-form" method="POST" class="search-form d-flex" autocomplete="off">
+                  {% csrf_token %}
+                  <input id="search-friend" name="search-friend" class="search-input form-control" type="search" placeholder="Search" aria-label="Search" >
+                  <button class="search-button btn" type="submit"><i data-bs-toggle="modal" data-bs-target="#modalUsers" class="bi bi-search"></i></button>
+                  <ul id="search-results" class="dropdown-menu mt-5 rounded"></ul>
+                </form>
+
+                  
+                <div class="text-center">
+                  {% if request.user in all_tmp_users %}
+                  <p class="fw-light">You are temporary user, please make <a href="{% url "convert" %}">account</a></p>
+                  {% endif %}
+                </div>
+
+                <div class="dropstart">
+                  <p class="fw-bold" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false" style="color:green;">{{request.user}}</p>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
+                    <li><a class="dropdown-item" href="#">Online</a></li>
+                    <li><a class="dropdown-item" href="#">Offline</a></li>
+                  </ul>
+                </div>
+
+              </div>
+            </nav>
+
+            <section class="main-section overflow-hidden border-top border-4">
+              
+                          <main>
+                              
+                            <div class="d-flex flex-column flex-shrink-0 left-panel">
+                                  <h5 class="mb-3 text-center card-header">Channels</h5>
+                                    <div class="card-body">
+                                          <div id="chat-lists">
+                                            <ul class="list-unstyled mb-0" id="chat-list">
+                                              {% for room in all_rooms %}
+                                                  <li class="chats" onclick="return createSocket(this);" > 
+                                                     <a id="room-name" class="friend-link" class="d-flex justify-content-between">
+                                                      <div class="d-flex justify-content-between">
+                                                          <p class="mb-0" >{{room.name}}</p>
+                                                      </div>
+                                                    </a>
+                                                  </li>
+                                              {% endfor %}
+                                            </ul>
+                                          </div>
+                                      <hr>
+                                    </div>
+                                  <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createNewChannel">
+                                  Create new channel
+                                </button>
+                            </div>
+                        
+                            <div class="chat-window">
+                              <div class="load-chat-window"id="loadChat"></div>
+                            </div>
+
+                            <div class="friends-list bg-light p-1 rounded">
+
+                              <p class="text-center">Friends</p>
+                              <hr>
+
+                                  <ul id="friends" class="friends list-unstyled d-flex flex-column">
+                                    {% for friend in friends_room %}
+                                    <li class="chats-friends" data-value="{{friend.default}}" onclick="return createSocketWithUser(this);"> 
+                                      <a id="room-name" class="room-link" class="d-flex justify-content-between">
+                                        <div class="d-flex justify-content-between">
+                                            <p class="mb-0">{% if friend.author == request.user.username %}
+                                                                {{friend.friend}}
+                                                              {% else %}
+                                                                {{friend.author}}
+                                                              {% endif %}</p>
+
+                                        </div>
+                                      </a>
+                                    </li>
+                                    {%empty%}
+                                    {% endfor %}
+                                  </ul>
+
+                            </div>
+                          </main>
+                  
+              </section>
+
+</div>
+
+
+          <!-- Modal -->
+          <div class="modal fade" id="createNewChannel" tabindex="-1" aria-labelledby="createNewChannelLabel" aria-hidden="true" data-bs-backdrop="false">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="createNewChannelLabel">Create new channel</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+
+                      <div class="create-form">
+                        <form id="create-new-channel" method="POST">
+                          {% csrf_token %}
+                          <div class="row justify-content-md-center">
+                              <div class="col-md-auto">
+                                <input class="form-control" id="room-name-input" type="text" name="room-name-input" size="30">
+                              </div>
+                          </div>
+                      </div>
+                    
+                
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button class="form-label btn btn-info btn-rounded" id="room-name-submit" onclick="createNewChannel(event)">Create</button>
+                        </div>
+                      </form>
+                </div>
+              </div>
+            </div>
+
+<script src={% static "chat/room-search.js" %}></script>
+<script src={% static "chat/room.js" %}></script>
+<script src={% static "chat/room-directmessage.js" %}></script>
+
+{% endblock  %}

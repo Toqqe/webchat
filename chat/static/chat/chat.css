@@ -1,0 +1,213 @@
+
+.main-window{
+  min-height: 100%;
+  max-height: 100%;
+
+}
+
+.list-unstyled li:hover, .list-unstyled li.active{
+  border-radius: 5px;
+  box-shadow: 5px;
+  background-color: rgb(207, 207, 207, .4);
+  transition: 0.3s;
+}
+
+
+.chats, .chats-friends{
+  cursor: pointer;
+}
+
+.chats a{
+    text-decoration: none;
+    color:white;
+}
+
+.chats-friends a{
+  text-decoration: none;
+  color:black;
+}
+
+.left-panel{
+  color:white;
+  background-color: #66a3ff;
+  min-width: 25vh;
+}
+#chat-lists{
+  overflow: hidden;
+  max-height: 50vh;
+}
+
+body {
+    min-height: -webkit-fill-available;
+    font-family: 'Playpen Sans', cursive;
+  }
+  
+html {
+  height: -webkit-fill-available;
+  
+}
+
+
+main {
+  display: flex;
+  /* height: 80%; */
+  /*min-height: -o-calc(100% - 15rem);  opera 
+  min-height: -webkit-calc(100% - 15rem);  google, safari 
+  min-height: -moz-calc(100% - 15rem);  firefox 
+   height: -webkit-fill-available;
+  max-height: -o-calc(100% - 15rem);  opera 
+  max-height: -webkit-calc(100% - 15rem);  google, safari 
+  max-height: -moz-calc(100% - 15rem);  firefox */
+}
+
+.chat-window {
+  width: 100%;
+  min-height: calc(100vh - 3.3rem);
+  max-height: calc(100vh - 3.3rem);
+  background-color: rgba(0, 0, 0, .1);
+  box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+}
+
+.friend-bar{
+  text-align: center;
+  margin-top: -1px;
+  background-color: #66a3ff;
+}
+
+.main-chat, .main-chat-friends{
+
+  overflow: hidden;
+  min-height: calc(100vh - 8rem);
+  max-height: calc(100vh - 8rem); /* cause of paddings in submit*/
+}
+
+
+/* scrolll */
+
+
+#chat-lists::-webkit-scrollbar, .main-chat::-webkit-scrollbar ,.main-chat-friends::-webkit-scrollbar {
+  width: 10px;
+
+}
+#chat-lists::-webkit-scrollbar-track, .main-chat::-webkit-scrollbar-track ,.main-chat-friends::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+#chat-lists::-webkit-scrollbar-thumb, .main-chat::-webkit-scrollbar-thumb ,.main-chat-friends::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+#chat-lists::-webkit-scrollbar-thumb:hover, .main-chat::-webkit-scrollbar-thumb:hover ,.main-chat-friends::-webkit-scrollbar-thumb:hover {
+  background: #707070;
+}
+
+#chat-lists:hover, .main-chat:hover, .main-chat-friends:hover{
+  overflow-y: scroll;
+  padding-right:6px; /* cause of padding from card-body */
+  
+}
+#chat-lists{
+  overflow-y: hidden;
+  max-height: 50vh;
+}
+/* friends list */
+.friends-list{
+  max-width: 13rem;
+  min-width: 13rem;
+}
+
+/* users-online */
+
+.users-online i{
+  color:green;
+}
+.users-online{
+  min-width: 20vh;
+  list-style: none;
+}
+
+
+/* search */
+
+.navbar{
+  height: 3rem;
+}
+
+.search-form{
+  border: 1px solid rgb(122, 158, 199);
+  background:transparent;
+  border-radius: 1rem;
+}
+
+#search-results{
+  border: 1px solid #919191;
+  width:70vh;
+}
+
+#search-results a{
+  color: black;
+  text-decoration: none;
+}
+
+#search-results li{
+  opacity: 70%;
+  border-radius: 1rem;
+}
+
+#search-results li:hover{
+  opacity: 100%;
+  transition: 0.4s;
+  background-color: #b0d0ff;
+}
+
+
+.search-input{
+  width: 70vh;
+  border: none;
+  border-radius: inherit;
+  background: transparent;
+
+  color: inherit;
+  margin: 0;
+
+}
+
+.search-button{
+  width: 40px;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: inherit;
+  overflow: hidden;
+  
+  border: 1px solid transparent;
+  padding: 0;
+  margin: 0;
+  
+}
+
+input.nosubmit {
+  width: 260px;
+  border: 1px solid #555;
+  display: block;
+  padding: 9px 4px 9px 40px;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat 13px center;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+#search-results { animation: fadeIn .5s; }
+
+
+/* .online {
+  font-size: 15px;
+  max-height: 70vh;
+  min-height: 70vh;
+  max-width: 13rem;
+  min-width: 10rem;
+  overflow-y: auto;
+} */

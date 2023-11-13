@@ -1,0 +1,5 @@
+__pycache__
+db.sqlite3
+
+chat/__pycache__/
+webchat/__pycache__/

@@ -1,0 +1,44 @@
+*, html {
+    scroll-behavior: auto !important;
+}
+
+
+body{
+    background-color: rgb(73, 73, 73);
+}
+
+
+.main-chat{
+    height: 100vh;
+    height:auto;
+    max-height: 40rem;
+    min-height: 25rem;
+}
+
+.message{
+    background-color: rgb(132, 0, 255);
+    border-radius: 1rem 1rem 1rem 0;
+}
+
+.message-opposed{
+    background-color: rgb(132, 0, 255);
+    border-radius: 1rem 1rem 0 1rem;
+}
+
+.img-message{
+    height: 40px;
+    width: 40px;
+}
+
+.users-online{
+    min-width: 20vh;
+    list-style: none;
+    margin-right: 2rem;
+}
+.users-online i{
+    color:green;
+}
+.online{
+    max-width: 40%;
+    min-width: 20%;
+}

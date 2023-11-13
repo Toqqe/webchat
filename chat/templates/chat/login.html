@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block page_title %}Welcome{% endblock  %}
+
+{% block page_css_files %}
+<link rel="stylesheet" href="{% static "chat/guest.css" %}">
+{% endblock  %}
+
+{% block page_content %}
+
+<div class="container">
+    <form method="POST" action="">
+        {% csrf_token %}
+
+        <div class="d-flex flex-column bd-highlight mb-3">
+            {% for field in form %}
+                {{field.label}}
+                {{field}}
+            {% endfor %}
+        </div>
+        <!-- Submit button -->
+        <button class="btn btn-primary btn-block mb-4">Enter!</button>
+    </form>
+        <span class="badge bg-light text-dark">Not have account yet? <a href="{% url "register-page" %}">Register</a></span>
+</div>
+
+
+<script>
+
+    document.querySelector('#id_is_guest').onclick = function(e) {
+        let is_guest = document.getElementById('id_is_guest')
+
+        if(is_guest.checked){
+            document.getElementById('id_password').disabled = true;
+            document.getElementById('id_password').required = false;
+        }else{
+            document.getElementById('id_password').disabled = false;
+            document.getElementById('id_password').required = true;
+        }
+
+    };
+</script>
+
+{% endblock  %}
