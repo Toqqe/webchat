@@ -1,0 +1,10 @@
+{% for friend in friends_room %}
+<li class="chats-friends" onclick="return createSocketWithUser(this);"> 
+  <a id="room-name" class="room-link" class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between">
+        <p class="mb-0">{{friend.username}}</p>
+    </div>
+  </a>
+</li>
+{%empty%}
+{% endfor %}

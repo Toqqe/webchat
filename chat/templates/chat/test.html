@@ -1,0 +1,66 @@
+
+<div class="d-flex card chat-box">
+            <div class="d-flex bd-highlight friend-bar p-1">
+                <div id="friend-bar" class="w-100 bd-highlight">{{room_name}}</div>
+
+                    <div class="flex-shrink-1 bd-highlight dropdown">
+                        <i class="bi bi-filter-circle-fill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"> Online</i>
+                        <ul id="idOnlineUsers" class="users-online dropdown-menu">
+                            {% for online_user in online_users.users.all %}
+                                {% if online_user.username != request.user.username %}
+                                <li><i class="p-1 bi bi-chat-square-fill "></i>{{online_user}}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                </div>
+                <div id="chat-text" class="main-chat card-body">
+                    {% for message in messages %}
+                        {% if request.user != message.author %}
+                        
+                        <div id="chat-text" class="d-flex justify-content-end ">
+                            <p class="mx-1 mt-auto bd-highlight message-opposed p-2 text-break" data-bs-toggle="tooltip" data-bs-placement="top" title="{{message.timestamp | date:"l H:i"}}">{{message.context}}</p>
+                            <p class="bd-highlight mt-auto">
+                                <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
+                            </p>
+                        </div>
+
+                        {% else %}
+                        <div id="chat-text" class="d-flex">
+                            <p class="bd-highlight mt-auto">
+                                <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
+                            </p>
+                            <p class="mx-1 mt-auto bd-highlight message p-2 text-break" data-bs-toggle="tooltip" data-bs-placement="top" title="{{message.timestamp | date:"l H:i"}}"  >{{message.context}}</p>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                </div>
+                <div class="card-footer row g-0">
+                    <input id="chat-message-input" type="text" class="col-md-10"><br>
+                    <i id="chat-message-submit" type="button" class="col-md-2 bi bi-send text-center"></i>
+                </div>
+            </div>
+
+
+</div>
+
+
+
+            
+    {% comment %} <div class="d-flex justify-content-center"> {% endcomment %}
+            {% comment %}         
+            <div class="online bg-light rounded">
+                    <p class="text-center">Chat users</p>
+                    <hr>
+                    <ul id="idOnlineUsers" class="d-flex flex-column users-online">
+                        {% for online_user in online_users.users.all %}
+                            {% if online_user.username != request.user.username %}
+                            <li><i class="p-1 bi bi-chat-square-fill"></i>{{online_user}}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+            </div> 
+            {% endcomment %}
+    

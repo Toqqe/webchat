@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block page_title %}Update{% endblock  %}
+
+{% block page_content %}
+<div class="container mx-auto mt-5" style="width:50rem;">
+    <form method="POST">
+    {% csrf_token %}
+    {{form}}
+    <button class="btn btn-primary btn-block mb-4">Enter!</button>
+    </form>
+</div>
+{% endblock  %}
