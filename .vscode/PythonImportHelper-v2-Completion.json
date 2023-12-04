@@ -562,6 +562,22 @@
         "documentation": {}
     },
     {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
         "label": "models",
         "importPath": "django.db",
         "description": "django.db",
@@ -885,6 +901,14 @@
         "description": "django.http",
         "isExtraImport": true,
         "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "get_token",
+        "importPath": "django.middleware.csrf",
+        "description": "django.middleware.csrf",
+        "isExtraImport": true,
+        "detail": "django.middleware.csrf",
         "documentation": {}
     },
     {
@@ -1221,6 +1245,15 @@
         "documentation": {}
     },
     {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "chat.migrations.0027_customuser_online",
+        "description": "chat.migrations.0027_customuser_online",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('chat', '0026_rename_name_directrooms_author_directrooms_friend'),\n    ]\n    operations = [\n        migrations.AddField(\n            model_name='customuser',\n            name='online',\n            field=models.BooleanField(default=False),\n        ),",
+        "detail": "chat.migrations.0027_customuser_online",
+        "documentation": {}
+    },
+    {
         "label": "ChatConfig",
         "kind": 6,
         "importPath": "chat.apps",
@@ -1235,6 +1268,15 @@
         "importPath": "chat.consumers",
         "description": "chat.consumers",
         "peekOfCode": "class ChatCustomer(AsyncWebsocketConsumer):\n    async def connect(self):\n        self.room_name = self.scope[\"url_route\"][\"kwargs\"][\"room_name_id\"]\n        self.user = self.scope[\"user\"]\n        print(\"Connect:\", self.scope[\"user\"])\n        self.room_group_name = \"chat_%s\" % self.room_name\n        #join room group\n        await self.channel_layer.group_add(self.room_group_name, self.channel_name)\n        await self.accept()\n        await self.sync_db()",
+        "detail": "chat.consumers",
+        "documentation": {}
+    },
+    {
+        "label": "OnlineStatusConsumer",
+        "kind": 6,
+        "importPath": "chat.consumers",
+        "description": "chat.consumers",
+        "peekOfCode": "class OnlineStatusConsumer(AsyncWebsocketConsumer):\n    async def connect(self):\n        self.room_name = \"general\"\n        self.room_group_name = \"main_chat_%s\" % self.room_name\n        self.user = self.scope[\"user\"]\n        await self.channel_layer.group_add(self.room_group_name, self.channel_name)\n        await self.accept()\n        await self.change_status(self.user)\n    async def disconnect(self, close_code):\n        pass",
         "detail": "chat.consumers",
         "documentation": {}
     },
@@ -1279,7 +1321,7 @@
         "kind": 6,
         "importPath": "chat.models",
         "description": "chat.models",
-        "peekOfCode": "class CustomUser(AbstractUser):\n    is_guest = models.BooleanField(default=False)\n    user_img = models.ImageField(upload_to=\"user_images\", default=\"blank-usr-img.png\")\n    friends = models.ManyToManyField('self', blank=True )\nUser = get_user_model()   \nclass ActiveRooms(models.Model):\n    name = models.CharField(max_length=50)\n    users_online = models.IntegerField(default=0)\n    users = models.ManyToManyField(CustomUser, related_name=\"users\", blank=True )\n    def __str__(self):",
+        "peekOfCode": "class CustomUser(AbstractUser):\n    is_guest = models.BooleanField(default=False)\n    user_img = models.ImageField(upload_to=\"user_images\", default=\"blank-usr-img.png\")\n    friends = models.ManyToManyField('self', blank=True )\n    online = models.BooleanField(default=False)\nUser = get_user_model()   \nclass ActiveRooms(models.Model):\n    name = models.CharField(max_length=50)\n    users_online = models.IntegerField(default=0)\n    users = models.ManyToManyField(CustomUser, related_name=\"users\", blank=True )",
         "detail": "chat.models",
         "documentation": {}
     },
@@ -1333,7 +1375,7 @@
         "kind": 5,
         "importPath": "chat.routing",
         "description": "chat.routing",
-        "peekOfCode": "websocket_urlpatterns = [\n    re_path(r\"ws/chat/(?P<room_name_id>\\w+)/$\", consumers.ChatCustomer.as_asgi()),\n    re_path(r\"ws/directmessage/(?P<direct_room_id>\\w+)/$\", consumers.DirectMessage.as_asgi()),\n]",
+        "peekOfCode": "websocket_urlpatterns = [\n    re_path(r\"ws/chat/(?P<room_name_id>\\w+)/$\", consumers.ChatCustomer.as_asgi()),\n    re_path(r\"ws/directmessage/(?P<direct_room_id>\\w+)/$\", consumers.DirectMessage.as_asgi()),\n    re_path(\"ws/general\", consumers.OnlineStatusConsumer.as_asgi()),\n]",
         "detail": "chat.routing",
         "documentation": {}
     },
@@ -1342,7 +1384,7 @@
         "kind": 5,
         "importPath": "chat.urls",
         "description": "chat.urls",
-        "peekOfCode": "urlpatterns = [\n    path('register', views.GuestView.as_view(), name=\"register-page\"),\n    path(\"login\", views.LoginView.as_view(), name=\"login-page\"),\n    path('chat/<str:room_name>/', views.room, name=\"room-url\"),\n    path('', views.MainChat.as_view()),\n    path('convert', views.user_convert, name=\"convert\"),\n    path('search/<str:search_query>/', views.search, name=\"search\"),\n    path('users/<str:user_name>/', views.users, name=\"add-friend\"),\n    path('directmessage/<str:direct_room>/', views.directMessages),\n]",
+        "peekOfCode": "urlpatterns = [\n    path('register', views.GuestView.as_view(), name=\"register-page\"),\n    path('login', views.LoginView.as_view(), name=\"login-page\"),\n    path('chat/<str:room_name>/', views.room, name=\"room-url\"),\n    path('', views.MainChat.as_view()),\n    path('convert', views.user_convert, name=\"convert\"),\n    path('search/<str:search_query>/', views.search, name=\"search\"),\n    path('users/<str:user_name>/', views.users, name=\"add-friend\"),\n    path('update/<int:id>', views.update_user_status),\n    path('directmessage/<str:direct_room>/', views.directMessages),",
         "detail": "chat.urls",
         "documentation": {}
     },
@@ -1370,6 +1412,15 @@
         "importPath": "chat.views",
         "description": "chat.views",
         "peekOfCode": "class MainChat(View):\n    def get(self,request):\n        all_rooms = ActiveRooms.objects.all()\n        user = CustomUser.objects.get(id=request.user.id)\n        all_tmp_users = CustomUser.objects.filter(is_guest=True)\n        context = {\n            \"all_rooms\" : all_rooms,\n            \"friends_room\" : user.direct_users.all(),\n            #\"friends_rooms\" : user.friends.all(),\n            \"all_tmp_users\" : all_tmp_users",
+        "detail": "chat.views",
+        "documentation": {}
+    },
+    {
+        "label": "get_csrf_token",
+        "kind": 2,
+        "importPath": "chat.views",
+        "description": "chat.views",
+        "peekOfCode": "def get_csrf_token(request):\n    return JsonResponse({'csrfToken': get_token(request)})\nclass GuestView(View):\n    def get(self, request):\n        form = RegistrationForm()\n        return render(request, 'chat/guest.html', {'form': form})\n    def post(self,request):\n        print(request.POST)\n        form = RegistrationForm(request.POST)\n        if form.is_valid():",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -1406,6 +1457,15 @@
         "importPath": "chat.views",
         "description": "chat.views",
         "peekOfCode": "def room(request, room_name):\n    filter_rooms = ActiveRooms.objects.filter(name=room_name).first()\n    if filter_rooms:\n        messages = MessagesRoom.objects.filter(room=filter_rooms.id)\n    else:\n        messages = []\n    chat_content = render_to_string( \"chat/test.html\", { \n        \"room_name\":room_name,\n        \"messages\":messages,\n        \"online_users\":filter_rooms,",
+        "detail": "chat.views",
+        "documentation": {}
+    },
+    {
+        "label": "update_user_status",
+        "kind": 2,
+        "importPath": "chat.views",
+        "description": "chat.views",
+        "peekOfCode": "def update_user_status(request, id):\n    user_object = CustomUser.objects.get(id=id)\n    if request.user == user_object:\n        if user_object.online:\n            user_object.online = False\n            user_object.save()\n            return JsonResponse({\"status\":\"ok\",\n                                 \"user_status\":user_object.online})\n        else:\n            user_object.online = True",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -1486,7 +1546,25 @@
         "kind": 5,
         "importPath": "webchat.settings",
         "description": "webchat.settings",
-        "peekOfCode": "MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]\nROOT_URLCONF = 'webchat.urls'",
+        "peekOfCode": "MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'corsheaders.middleware.CorsMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]",
+        "detail": "webchat.settings",
+        "documentation": {}
+    },
+    {
+        "label": "CORS_ALLOW_CREDENTIALS",
+        "kind": 5,
+        "importPath": "webchat.settings",
+        "description": "webchat.settings",
+        "peekOfCode": "CORS_ALLOW_CREDENTIALS = True\nCSRF_COOKIE_SECURE = True\nROOT_URLCONF = 'webchat.urls'\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [\n            BASE_DIR / \"templates\"\n        ],\n        'APP_DIRS': True,",
+        "detail": "webchat.settings",
+        "documentation": {}
+    },
+    {
+        "label": "CSRF_COOKIE_SECURE",
+        "kind": 5,
+        "importPath": "webchat.settings",
+        "description": "webchat.settings",
+        "peekOfCode": "CSRF_COOKIE_SECURE = True\nROOT_URLCONF = 'webchat.urls'\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [\n            BASE_DIR / \"templates\"\n        ],\n        'APP_DIRS': True,\n        'OPTIONS': {",
         "detail": "webchat.settings",
         "documentation": {}
     },

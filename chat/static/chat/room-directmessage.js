@@ -38,7 +38,7 @@ async function addToFriend(e){
     }
 };
 
-
+/////////////////////// TO DO: poprawienie dołączania do pokoju !! tworzy nowy nawet jeżeli taki jest
 function createNewChannel(event){
     event.preventDefault();
 

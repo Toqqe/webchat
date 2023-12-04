@@ -140,6 +140,29 @@ class ChatCustomer(AsyncWebsocketConsumer):
         return active_users
         
 
+############################################################################################ Online
+
+
+class OnlineStatusConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        
+        self.room_name = "general"
+        self.room_group_name = "main_chat_%s" % self.room_name
+        self.user = self.scope["user"]
+
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.accept()
+
+        await self.change_status(self.user)
+
+    async def disconnect(self, close_code):
+        pass
+
+    
+    @database_sync_to_async
+    def change_status(self, user):
+        print(user)
+
 ############################################################################################ For direct users
 
 class DirectMessage(AsyncWebsocketConsumer):

@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{% static "chat/chat.css" %}">
 <link rel="stylesheet" href={% static "chat/chat_additional.css" %}>
 {{ request.user.username|json_script:"request-user" }}
+{{ request.user.id|json_script:"request-user-id" }}
 {% endblock  %}
 
 {% block page_content %}
@@ -17,6 +18,7 @@
             <nav class="navbar navbar-light bg-light">
               <div class="container-fluid">
                 <a class="navbar-brand" href="/">Navbar</a>
+
                 
                 <form id="search-form" method="POST" class="search-form d-flex" autocomplete="off">
                   {% csrf_token %}
@@ -33,10 +35,26 @@
                 </div>
 
                 <div class="dropstart">
-                  <p class="fw-bold" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false" style="color:green;">{{request.user}}</p>
+                  <p class="fw-bold" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false"><i id="user-status-icon" class="bi bi-chat-dots-fill"></i> {{request.user}}</p>
+                  
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
-                    <li><a class="dropdown-item" href="#">Online</a></li>
-                    <li><a class="dropdown-item" href="#">Offline</a></li>
+                    <li>
+                      <a class="dropdown-item" id="user-status" href="#" name="user-status-toggle">
+                        {{ user.is_active|json_script:"user-current-status" }}
+                        {% if user.is_active %}
+                        Set status Offline
+                        {% else %}
+                        Set status Online
+                        {% endif %}
+                      </a>
+                    </li>
+                  {% comment %}                     
+                    {% if user.is_active %}
+                      <li><a class="dropdown-item" id="user-status" href="#" name="user-offline">Set status Offline</a></li>
+                    {% else %} 
+                      <li><a class="dropdown-item" id="user-status" href="#" name="user-online">Set status Online</a></li>
+                    {% endif %} {% endcomment %}
+
                   </ul>
                 </div>
 
@@ -137,8 +155,12 @@
               </div>
             </div>
 
+
+<script src={% static "chat/main-socket.js" %}></script>
+<script src={% static "chat/get-csrf.js" %}></script>
 <script src={% static "chat/room-search.js" %}></script>
 <script src={% static "chat/room.js" %}></script>
 <script src={% static "chat/room-directmessage.js" %}></script>
+<script src={% static "chat/user-status.js" %}></script>
 
 {% endblock  %}

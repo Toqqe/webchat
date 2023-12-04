@@ -12,6 +12,7 @@ class CustomUser(AbstractUser):
     is_guest = models.BooleanField(default=False)
     user_img = models.ImageField(upload_to="user_images", default="blank-usr-img.png")
     friends = models.ManyToManyField('self', blank=True )
+    online = models.BooleanField(default=False)
 
 
 User = get_user_model()   
