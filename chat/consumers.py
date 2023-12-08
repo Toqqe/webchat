@@ -153,15 +153,83 @@ class OnlineStatusConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
-        await self.change_status(self.user)
 
     async def disconnect(self, close_code):
         pass
+        #await self.change_status()
 
-    
+
+    async def receive(self, text_data): ##2
+        text_data_json = json.loads(text_data)
+        print("JSON, user_status: ", text_data_json)
+
+        new_status = await self.change_status(text_data_json['username'])
+
+
+        await self.channel_layer.group_send(
+            self.room_group_name,{
+            'type': 'send_user_status',
+            'status': new_status,
+            'user': text_data_json['username'],
+        })
+
+    async def send_user_status(self, event):
+
+        status = event['status']
+        user = event['user']
+
+        await self.send(text_data=json.dumps({
+            "status": status,
+            "user" : user,
+        }))
+
+
     @database_sync_to_async
     def change_status(self, user):
-        print(user)
+        user_object = CustomUser.objects.get(username=user)
+        
+        if user_object.online:
+            user_object.online = False
+            user_object.save()
+        else:
+            user_object.online = True
+            user_object.save()
+
+        return user_object.online
+
+    # user_object = CustomUser.objects.get(id=id)
+    
+    # if request.user == user_object:
+    #     if user_object.online:
+    #         user_object.online = False
+    #         user_object.save()
+    #         return JsonResponse({"status":"ok",
+    #                              "user_status":user_object.online})
+    #     else:
+    #         user_object.online = True
+    #         user_object.save()
+    #         return JsonResponse({"status":"ok",
+    #                              "user_status":user_object.online})
+
+    # async def websocket_disconnect(self, message):
+    #     await self.channel_layer.group_send(
+    #          self.room_group_name,{
+    #             'type': 'send_user_update',
+    #             'message': "user_disconnected",
+    #             'user_online': self.user.username,
+
+    #     })
+    #     await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+    #     await self.del_sync_db()
+
+    #     if message['code'] == None:
+    #         message['code'] = 1001
+        
+    #     print('disconnected! ', message)
+    #     await super().websocket_disconnect(message)
+
+
+
 
 ############################################################################################ For direct users
 

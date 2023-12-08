@@ -182,26 +182,22 @@ def room(request, room_name):
     return JsonResponse({"chat_content":chat_content})
 
 def update_user_status(request, id):
-    user_object = CustomUser.objects.get(id=id)
+    pass
+    # user_object = CustomUser.objects.get(id=id)
     
-    if request.user == user_object:
-        if user_object.online:
-            user_object.online = False
-            user_object.save()
-            return JsonResponse({"status":"ok",
-                                 "user_status":user_object.online})
-        else:
-            user_object.online = True
-            user_object.save()
-            return JsonResponse({"status":"ok",
-                                 "user_status":user_object.online})
+    # if request.user == user_object:
+    #     if user_object.online:
+    #         user_object.online = False
+    #         user_object.save()
+    #         return JsonResponse({"status":"ok",
+    #                              "user_status":user_object.online})
+    #     else:
+    #         user_object.online = True
+    #         user_object.save()
+    #         return JsonResponse({"status":"ok",
+    #                              "user_status":user_object.online})
             
 
-
-
-    ##<ASGIRequest: GET '/update/64'>
-    ##64
-    
 
 
 def user_convert(request):

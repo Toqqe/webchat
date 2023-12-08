@@ -30,6 +30,7 @@
                   
                 <div class="text-center">
                   {% if request.user in all_tmp_users %}
+
                   <p class="fw-light">You are temporary user, please make <a href="{% url "convert" %}">account</a></p>
                   {% endif %}
                 </div>
@@ -39,9 +40,11 @@
                   
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
                     <li>
+                      
                       <a class="dropdown-item" id="user-status" href="#" name="user-status-toggle">
-                        {{ user.is_active|json_script:"user-current-status" }}
-                        {% if user.is_active %}
+                      {% comment %} <script id="user-status-icon-{{user.username}}" type="application/json">true</script> {% endcomment %}
+                        {{ user.online|json_script:"user-current-status" }}
+                        {% if user.online %}
                         Set status Offline
                         {% else %}
                         Set status Online
@@ -99,17 +102,22 @@
                               <hr>
 
                                   <ul id="friends" class="friends list-unstyled d-flex flex-column">
-                                    {% for friend in friends_room %}
-                                    <li class="chats-friends" data-value="{{friend.default}}" onclick="return createSocketWithUser(this);"> 
+                                    {% for friends in friends_room %}
+                                    <li class="chats-friends" data-value="{{friends.default}}" onclick="return createSocketWithUser(this);"> 
                                       <a id="room-name" class="room-link" class="d-flex justify-content-between">
                                         <div class="d-flex justify-content-between">
-                                            <p class="mb-0">{% if friend.author == request.user.username %}
-                                                                {{friend.friend}}
-                                                              {% else %}
-                                                                {{friend.author}}
-                                                              {% endif %}</p>
+                                            <p class="mb-0">
+                                              {% if friends.author == request.user %}
+                                                {{friends.friend}} <i id="user-status-icon-{{friends.friend}}" 
+                                                data-value-status="{{friends.friend.online}}" 
+                                                data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill"></i>
+                                              {% else %}
+                                                {{friends.author}} <i id="user-status-icon-{{friends.author}}" 
+                                                data-value-status="{{friends.author.online}}" 
+                                                data-value-nickname="{{friends.author}}" class="bi bi-chat-dots-fill"></i>
+                                              {% endif %}</p>
 
-                                        </div>
+                                        </div> 
                                       </a>
                                     </li>
                                     {%empty%}
@@ -156,11 +164,54 @@
             </div>
 
 
-<script src={% static "chat/main-socket.js" %}></script>
+
 <script src={% static "chat/get-csrf.js" %}></script>
 <script src={% static "chat/room-search.js" %}></script>
 <script src={% static "chat/room.js" %}></script>
 <script src={% static "chat/room-directmessage.js" %}></script>
 <script src={% static "chat/user-status.js" %}></script>
+<script src={% static "chat/main-socket.js" %}></script>
+
+
+
+{% if friends.author == request.user %}
+{{friends.friend}} <i id="user-status-icon-{{friends.friend}}" 
+data-value-status="{{friends.friend.online}}" 
+data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill"></i>
+{% else %}
+{{friends.author}} <i id="user-status-icon-{{friends.author}}" 
+data-value-status="{{friends.author.online}}" 
+data-value-nickname="{{friends.author}}" class="bi bi-chat-dots-fill"></i>
+{% endif %}</p>
+
+
+<script>
+
+  let tmpFriendsList = [
+    {% for friends in friends_room %}
+      {% if friends.author == request.user %}
+        {
+          nickname: "{{ friends.friend }}",
+          status: "{{ friends.friend.online }}",
+        },
+        
+      {% else %}
+        {
+          nickname: "{{ friends.author }}",
+          status: "{{ friends.author.online }}",
+        },
+      {% endif %}
+    {% endfor %}
+  ];
+
+  
+  tmpFriendsList.forEach(function(friend) {
+    console.log(friend.status)
+    updateElementFriend(friend.nickname, friend.status.toLowerCase());
+  });
+
+</script>
+
+
 
 {% endblock  %}

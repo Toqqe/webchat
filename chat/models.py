@@ -32,8 +32,11 @@ class MessagesRoom(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 class DirectRooms(models.Model):
-    author = models.CharField(max_length=100, default=None)
-    friend = models.CharField(max_length=100, default=None)
+    author = models.OneToOneField(CustomUser, default=None, on_delete=models.CASCADE, related_name="author")
+    friend = models.OneToOneField(CustomUser, default=None, on_delete=models.CASCADE, related_name="friend")
+    
+    #author = models.CharField(max_length=100, default=None)
+    #friend = models.CharField(max_length=100, default=None)
     users = models.ManyToManyField(User, related_name="direct_users", blank=True)
     default = models.CharField(max_length=4, default='')
 
@@ -54,6 +57,6 @@ class DirectMessages(models.Model):
     context = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.room.name
+    # def __str__(self):
+    #     return self.room.name
     

@@ -128,6 +128,14 @@
         "documentation": {}
     },
     {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
         "label": "django.contrib.auth.models",
         "kind": 6,
         "isExtraImport": true,
@@ -395,6 +403,22 @@
     },
     {
         "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
         "importPath": "django.db",
         "description": "django.db",
         "isExtraImport": true,
@@ -1254,6 +1278,15 @@
         "documentation": {}
     },
     {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "chat.migrations.0028_alter_directrooms_author_alter_directrooms_friend",
+        "description": "chat.migrations.0028_alter_directrooms_author_alter_directrooms_friend",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('chat', '0027_customuser_online'),\n    ]\n    operations = [\n        migrations.AlterField(\n            model_name='directrooms',\n            name='author',\n            field=models.OneToOneField(default=None, on_delete=django.db.models.deletion.CASCADE, related_name='author', to=settings.AUTH_USER_MODEL),\n        ),",
+        "detail": "chat.migrations.0028_alter_directrooms_author_alter_directrooms_friend",
+        "documentation": {}
+    },
+    {
         "label": "ChatConfig",
         "kind": 6,
         "importPath": "chat.apps",
@@ -1276,7 +1309,7 @@
         "kind": 6,
         "importPath": "chat.consumers",
         "description": "chat.consumers",
-        "peekOfCode": "class OnlineStatusConsumer(AsyncWebsocketConsumer):\n    async def connect(self):\n        self.room_name = \"general\"\n        self.room_group_name = \"main_chat_%s\" % self.room_name\n        self.user = self.scope[\"user\"]\n        await self.channel_layer.group_add(self.room_group_name, self.channel_name)\n        await self.accept()\n        await self.change_status(self.user)\n    async def disconnect(self, close_code):\n        pass",
+        "peekOfCode": "class OnlineStatusConsumer(AsyncWebsocketConsumer):\n    async def connect(self):\n        self.room_name = \"general\"\n        self.room_group_name = \"main_chat_%s\" % self.room_name\n        self.user = self.scope[\"user\"]\n        await self.channel_layer.group_add(self.room_group_name, self.channel_name)\n        await self.accept()\n    async def disconnect(self, close_code):\n        pass\n        #await self.change_status()",
         "detail": "chat.consumers",
         "documentation": {}
     },
@@ -1339,7 +1372,7 @@
         "kind": 6,
         "importPath": "chat.models",
         "description": "chat.models",
-        "peekOfCode": "class MessagesRoom(models.Model):\n    room = models.ForeignKey(ActiveRooms, on_delete=models.CASCADE,null=True )\n    author = models.ForeignKey(User,on_delete=models.CASCADE, related_name=\"message_author\")\n    context = models.TextField()\n    timestamp = models.DateTimeField(auto_now_add=True)\nclass DirectRooms(models.Model):\n    author = models.CharField(max_length=100, default=None)\n    friend = models.CharField(max_length=100, default=None)\n    users = models.ManyToManyField(User, related_name=\"direct_users\", blank=True)\n    default = models.CharField(max_length=4, default='')",
+        "peekOfCode": "class MessagesRoom(models.Model):\n    room = models.ForeignKey(ActiveRooms, on_delete=models.CASCADE,null=True )\n    author = models.ForeignKey(User,on_delete=models.CASCADE, related_name=\"message_author\")\n    context = models.TextField()\n    timestamp = models.DateTimeField(auto_now_add=True)\nclass DirectRooms(models.Model):\n    author = models.OneToOneField(CustomUser, default=None, on_delete=models.CASCADE, related_name=\"author\")\n    friend = models.OneToOneField(CustomUser, default=None, on_delete=models.CASCADE, related_name=\"friend\")\n    #author = models.CharField(max_length=100, default=None)\n    #friend = models.CharField(max_length=100, default=None)",
         "detail": "chat.models",
         "documentation": {}
     },
@@ -1348,7 +1381,7 @@
         "kind": 6,
         "importPath": "chat.models",
         "description": "chat.models",
-        "peekOfCode": "class DirectRooms(models.Model):\n    author = models.CharField(max_length=100, default=None)\n    friend = models.CharField(max_length=100, default=None)\n    users = models.ManyToManyField(User, related_name=\"direct_users\", blank=True)\n    default = models.CharField(max_length=4, default='')\n    def save(self, *args, **kwargs):\n        if not self.default:\n            # Generowanie losowych 4 znaków\n            random_chars = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(4))\n            self.default = random_chars",
+        "peekOfCode": "class DirectRooms(models.Model):\n    author = models.OneToOneField(CustomUser, default=None, on_delete=models.CASCADE, related_name=\"author\")\n    friend = models.OneToOneField(CustomUser, default=None, on_delete=models.CASCADE, related_name=\"friend\")\n    #author = models.CharField(max_length=100, default=None)\n    #friend = models.CharField(max_length=100, default=None)\n    users = models.ManyToManyField(User, related_name=\"direct_users\", blank=True)\n    default = models.CharField(max_length=4, default='')\n    def save(self, *args, **kwargs):\n        if not self.default:\n            # Generowanie losowych 4 znaków",
         "detail": "chat.models",
         "documentation": {}
     },
@@ -1357,7 +1390,7 @@
         "kind": 6,
         "importPath": "chat.models",
         "description": "chat.models",
-        "peekOfCode": "class DirectMessages(models.Model):\n    room = models.ForeignKey(DirectRooms, on_delete=models.CASCADE,null=True )\n    author = models.ForeignKey(User,on_delete=models.CASCADE, related_name=\"direct_message_author\")\n    context = models.TextField()\n    timestamp = models.DateTimeField(auto_now_add=True)\n    def __str__(self):\n        return self.room.name",
+        "peekOfCode": "class DirectMessages(models.Model):\n    room = models.ForeignKey(DirectRooms, on_delete=models.CASCADE,null=True )\n    author = models.ForeignKey(User,on_delete=models.CASCADE, related_name=\"direct_message_author\")\n    context = models.TextField()\n    timestamp = models.DateTimeField(auto_now_add=True)\n    # def __str__(self):\n    #     return self.room.name",
         "detail": "chat.models",
         "documentation": {}
     },
@@ -1465,7 +1498,7 @@
         "kind": 2,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "def update_user_status(request, id):\n    user_object = CustomUser.objects.get(id=id)\n    if request.user == user_object:\n        if user_object.online:\n            user_object.online = False\n            user_object.save()\n            return JsonResponse({\"status\":\"ok\",\n                                 \"user_status\":user_object.online})\n        else:\n            user_object.online = True",
+        "peekOfCode": "def update_user_status(request, id):\n    pass\n    # user_object = CustomUser.objects.get(id=id)\n    # if request.user == user_object:\n    #     if user_object.online:\n    #         user_object.online = False\n    #         user_object.save()\n    #         return JsonResponse({\"status\":\"ok\",\n    #                              \"user_status\":user_object.online})\n    #     else:",
         "detail": "chat.views",
         "documentation": {}
     },

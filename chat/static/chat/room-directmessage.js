@@ -13,7 +13,7 @@ async function addToFriend(e){
         newListFriendItem.innerHTML = `
         <a id="room-name" class="friend-link" class="d-flex justify-content-between" data-value="${data.friend_code}" onclick="return createSocketWithUser(this);">
             <div class="d-flex justify-content-between">
-            <p class="mb-0">${data.friends_list}</p>
+            <p class="mb-0">${data.friends_list}</p><i id="user-status-icon" class="bi bi-chat-dots-fill"></i>
             </div>
         </a>`;
         friendsList.appendChild(newListFriendItem);
