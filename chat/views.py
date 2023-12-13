@@ -129,15 +129,16 @@ def users(request, user_name):
 
     typedUser = CustomUser.objects.filter(username=user_name).first()
     currentUser = CustomUser.objects.get(id=request.user.id)
-
+    print(currentUser)
+    print(currentUser.friends.all())
     if typedUser not in currentUser.friends.all():
         currentUser.friends.add(typedUser)
-        test = DirectRooms(author=currentUser, friend=typedUser)
-        test.save()
-        test.users.add(currentUser, typedUser)
-
-        return JsonResponse({"friends_list":typedUser.username,
-                             "friend_code":test.default})
+        newDirectRoom = DirectRooms(author=currentUser, friend=typedUser)
+        newDirectRoom.save()
+        newDirectRoom.users.add(currentUser, typedUser)
+    ##dodać statusy userów
+        return JsonResponse({"friend_added":typedUser.username,
+                             "friend_code":newDirectRoom.default})
 
     return HttpResponseRedirect("/")
 

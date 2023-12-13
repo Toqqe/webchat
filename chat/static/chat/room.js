@@ -132,9 +132,9 @@ async function createSocket(e){
 
             if(user != data.username){
                 user_message = `<div id='chat-text' class='d-flex justify-content-end'>
-                    <p class='mx-1 p-2 mt-auto bd-highlight message-opposed text-break' data-bs-toggle='tooltip' data-bs-placement='top' title='${data.message_timestamp}'>> ${data.message} </p>
+                    <p class='mx-1 p-2 mt-auto bd-highlight message-opposed text-break' data-bs-toggle='tooltip' data-bs-placement='top' title='${data.message_timestamp}'> ${data.message} </p>
                     <p class='bd-highlight mt-auto'>
-                        "<img class='rounded-circle img-message mt-auto' src='${data.user_online_img}'</img>
+                        <img class='rounded-circle img-message mt-auto' src='${data.user_online_img}'</img>
                     </p>
                 </div>`
             }

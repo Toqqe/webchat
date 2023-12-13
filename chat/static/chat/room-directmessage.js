@@ -11,11 +11,18 @@ async function addToFriend(e){
         newListFriendItem.dataset.value = data.friend_code;
 
         newListFriendItem.innerHTML = `
-        <a id="room-name" class="friend-link" class="d-flex justify-content-between" data-value="${data.friend_code}" onclick="return createSocketWithUser(this);">
-            <div class="d-flex justify-content-between">
-            <p class="mb-0">${data.friends_list}</p><i id="user-status-icon" class="bi bi-chat-dots-fill"></i>
+        <a id="room-name" class="room-link" class="d-flex justify-content-between" data-value="${data.friend_code}" onclick="return createSocketWithUser(this);">
+            <div class="d-flex">
+                <p class="mb-0 position-relative">
+                    <img src="{{friends.friend.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
+                    <i id="user-status-icon-{{friends.friend}}"   // poprawic
+                    data-value-status="{{friends.friend.online}}" // poprawic
+                    data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill position-absolute mt-4 bottom-0 end-0 rounded-circle"></i>
+                    <p class="mx-2">${data.friend_added}</p>
+                </p>
             </div>
-        </a>`;
+        </a>`
+        ;
         friendsList.appendChild(newListFriendItem);
         createSocketWithUser(newListFriendItem);
 

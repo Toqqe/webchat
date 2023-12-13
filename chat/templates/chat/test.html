@@ -1,9 +1,9 @@
 
 <div class="d-flex card chat-box">
             <div class="d-flex bd-highlight friend-bar p-1">
-                <div id="friend-bar" class="w-100 bd-highlight">{{room_name}}</div>
+                <div id="friend-bar" class="mx-2 bd-highlight">{{room_name}}</div>
 
-                    <div class="flex-shrink-1 bd-highlight dropdown">
+                    <div class="ms-auto bd-highlight dropdown">
                         <i class="bi bi-filter-circle-fill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"> Online</i>
                         <ul id="idOnlineUsers" class="users-online dropdown-menu">
                             {% for online_user in online_users.users.all %}

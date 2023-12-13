@@ -5,6 +5,11 @@
 
 }
 
+.logo img{
+  border-radius: 0.5rem;
+  background-color: #ffeded;
+}
+
 .list-unstyled li:hover, .list-unstyled li.active{
   border-radius: 5px;
   box-shadow: 5px;
@@ -39,7 +44,7 @@
 
 body {
     min-height: -webkit-fill-available;
-    font-family: 'Playpen Sans', cursive;
+    font-family: 'Lato', sans-serif;
   }
   
 html {
@@ -131,7 +136,7 @@ main {
 
 /* search */
 
-.navbar{
+nav{
   height: 3rem;
 }
 
@@ -143,7 +148,7 @@ main {
 
 #search-results{
   border: 1px solid #919191;
-  width:70vh;
+  width: 20vh;
 }
 
 #search-results a{
@@ -164,7 +169,7 @@ main {
 
 
 .search-input{
-  width: 70vh;
+  width: auto;
   border: none;
   border-radius: inherit;
   background: transparent;

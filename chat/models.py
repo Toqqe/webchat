@@ -32,8 +32,8 @@ class MessagesRoom(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 class DirectRooms(models.Model):
-    author = models.OneToOneField(CustomUser, default=None, on_delete=models.CASCADE, related_name="author")
-    friend = models.OneToOneField(CustomUser, default=None, on_delete=models.CASCADE, related_name="friend")
+    author = models.ForeignKey(CustomUser, default=None, on_delete=models.CASCADE, related_name="author")
+    friend = models.ForeignKey(CustomUser, default=None, on_delete=models.CASCADE, related_name="friend")
     
     #author = models.CharField(max_length=100, default=None)
     #friend = models.CharField(max_length=100, default=None)

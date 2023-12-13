@@ -19,6 +19,7 @@ mainSocket.onmessage = function(e){                 // mainSocket.onmessage = (e
     const data = JSON.parse(e.data);
 
     if(user != data.user){
+        console.log("from server", data.status, typeof(data.user))
         updateElementFriend(data.user ,data.status);         // data.username też trzeba 
     }else{
         updateElement(data.status);
@@ -46,8 +47,6 @@ userButton.addEventListener('click', ()=>{
 
 function updateElementFriend(users, usersStatus){
     let userStatusFriend = document.getElementById('user-status-icon-' + users);
-
-    //usersStatus = (usersStatus === 'true');
 
     if(usersStatus){
         userStatusFriend.style.color = "green";

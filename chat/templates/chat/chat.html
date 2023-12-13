@@ -13,85 +13,110 @@
 {% block page_content %}
 
 
+
 <div class="main-window">
 
-            <nav class="navbar navbar-light bg-light">
-              <div class="container-fluid">
-                <a class="navbar-brand" href="/">Navbar</a>
+  
+            <nav class="navbar-light">
 
+              <div class="d-flex bd-highlight mb-3">
                 
-                <form id="search-form" method="POST" class="search-form d-flex" autocomplete="off">
-                  {% csrf_token %}
-                  <input id="search-friend" name="search-friend" class="search-input form-control" type="search" placeholder="Search" aria-label="Search" >
-                  <button class="search-button btn" type="submit"><i data-bs-toggle="modal" data-bs-target="#modalUsers" class="bi bi-search"></i></button>
-                  <ul id="search-results" class="dropdown-menu mt-5 rounded"></ul>
-                </form>
-
-                  
-                <div class="text-center">
-                  {% if request.user in all_tmp_users %}
-
-                  <p class="fw-light">You are temporary user, please make <a href="{% url "convert" %}">account</a></p>
-                  {% endif %}
-                </div>
-
-                <div class="dropstart">
-                  <p class="fw-bold" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false"><i id="user-status-icon" class="bi bi-chat-dots-fill"></i> {{request.user}}</p>
-                  
-                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
-                    <li>
-                      
-                      <a class="dropdown-item" id="user-status" href="#" name="user-status-toggle">
-                      {% comment %} <script id="user-status-icon-{{user.username}}" type="application/json">true</script> {% endcomment %}
-                        {{ user.online|json_script:"user-current-status" }}
-                        {% if user.online %}
-                        Set status Offline
-                        {% else %}
-                        Set status Online
-                        {% endif %}
+                    <div class="p-1 mx-5 bd-highlight logo">
+                      <a class="text-dark text-decoration-none" href="/">     
+                        <img src="{% static 'images/final-logo.png' %}" height="40" alt="Channels Logo" loading="lazy" />
                       </a>
-                    </li>
-                  {% comment %}                     
-                    {% if user.is_active %}
-                      <li><a class="dropdown-item" id="user-status" href="#" name="user-offline">Set status Offline</a></li>
-                    {% else %} 
-                      <li><a class="dropdown-item" id="user-status" href="#" name="user-online">Set status Online</a></li>
-                    {% endif %} {% endcomment %}
+                    </div>
 
-                  </ul>
-                </div>
+                    <div class="mx-5 p-2 bd-highlight">
+                      <form id="search-form" method="POST" class="d-flex search-form" autocomplete="off">
+                        {% csrf_token %}
+                        <input id="search-friend" name="search-friend" class="search-input form-control" type="search" placeholder="Search" aria-label="Search" >
+                        {% comment %} <button class="search-button btn" type="submit"><i data-bs-toggle="modal" data-bs-target="#modalUsers" class="bi bi-search"></i></button> {% endcomment %}
+                        <ul id="search-results" class="dropdown-menu mt-5 rounded"></ul>
+                      </form>
+                    </div>
+
+
+                    <div class="ms-auto p-2 bd-highlight">
+
+                        <div class="dropstart">
+                          <p class="position-relative mx-5" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
+
+                            <img src="{{user.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
+                              <i id="user-status-icon" class="bi bi-chat-dots-fill position-absolute mt-4  translate-middle rounded-circle "></i>
+                            </img>
+                          </p>
+
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
+                            <li>
+                              <p class="fw-bold text-center">{{user.username}}</p>
+                            </li>
+                            <hr>
+                            <li>
+                              <div class="text-center">
+                                {% if request.user in all_tmp_users %}
+                                <p class="fw-bolder">You are temporary user, please make <a href="{% url "convert" %}">account</a></p>
+                                {% endif %}
+                              </div>
+                            </li>
+                            <hr>
+                            <li>
+                              <a class="dropdown-item" id="user-status" href="#" name="user-status-toggle">
+                                {{ user.online|json_script:"user-current-status" }}
+                                {% if user.online %}
+                                Set status Offline
+                                {% else %}
+                                Set status Online
+                                {% endif %}
+                              </a>
+                            </li>
+
+                          </ul>
+                        </div>
+                    </div>
 
               </div>
-            </nav>
+            </nav> 
+
+
 
             <section class="main-section overflow-hidden border-top border-4">
-              
                           <main>
                               
-                            <div class="d-flex flex-column flex-shrink-0 left-panel">
-                                  <h5 class="mb-3 text-center card-header">Channels</h5>
-                                    <div class="card-body">
-                                          <div id="chat-lists">
-                                            <ul class="list-unstyled mb-0" id="chat-list">
-                                              {% for room in all_rooms %}
-                                                  <li class="chats" onclick="return createSocket(this);" > 
-                                                     <a id="room-name" class="friend-link" class="d-flex justify-content-between">
-                                                      <div class="d-flex justify-content-between">
-                                                          <p class="mb-0" >{{room.name}}</p>
-                                                      </div>
-                                                    </a>
-                                                  </li>
-                                              {% endfor %}
-                                            </ul>
-                                          </div>
-                                      <hr>
-                                    </div>
-                                  <!-- Button trigger modal -->
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createNewChannel">
-                                  Create new channel
-                                </button>
+                            <div class="d-flex flex-column left-panel">
+
+                                <div class="d-flex bd-highlight">
+                                  <div class="p-2 w-100 bd-highlight"><h5>Channels</h5></div>
+                                  <div class="p-2 flex-shrink-1 bd-highlight">
+
+                                    <i class="bi bi-cloud-plus" type="button" data-bs-toggle="modal" data-bs-target="#createNewChannel"></i>
+
+                                  </div>
+                                </div>
+                                
+                                      <div id="chat-lists">
+                                        <ul class="list-unstyled mb-0" id="chat-list">
+                                          {% for room in all_rooms %}
+                                              <li class="chats" onclick="return createSocket(this);" > 
+                                                <a id="room-name" class="friend-link" class="d-flex justify-content-between">
+                                                  <div class="d-flex justify-content-between p-1 mx-1">
+                                                      <p class="mb-0" >{{room.name}}</p>
+                                                  </div>
+                                                </a>
+                                              </li>
+                                          {% endfor %}
+                                        </ul>
+                                      </div>
+                                  <hr>
                             </div>
                         
+                            {% comment %} <p class="position-relative mx-5" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
+
+                              <img src="{{user.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
+                                <i id="user-status-icon" class="bi bi-chat-dots-fill position-absolute mt-4  translate-middle rounded-circle "></i>
+                              </img>
+                            </p> {% endcomment %}
+                            
                             <div class="chat-window">
                               <div class="load-chat-window"id="loadChat"></div>
                             </div>
@@ -105,17 +130,22 @@
                                     {% for friends in friends_room %}
                                     <li class="chats-friends" data-value="{{friends.default}}" onclick="return createSocketWithUser(this);"> 
                                       <a id="room-name" class="room-link" class="d-flex justify-content-between">
-                                        <div class="d-flex justify-content-between">
-                                            <p class="mb-0">
+                                        <div class="d-flex">
+                                            <p class="mb-0 position-relative">
                                               {% if friends.author == request.user %}
-                                                {{friends.friend}} <i id="user-status-icon-{{friends.friend}}" 
+                                                <img src="{{friends.friend.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
+                                                <i id="user-status-icon-{{friends.friend}}" 
                                                 data-value-status="{{friends.friend.online}}" 
-                                                data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill"></i>
+                                                data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill position-absolute mt-4 bottom-0 end-0 rounded-circle"></i>
+                                                <p class="mx-2">{{friends.friend}}</p>
                                               {% else %}
-                                                {{friends.author}} <i id="user-status-icon-{{friends.author}}" 
+                                                <img src="{{friends.author.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
+                                                <i id="user-status-icon-{{friends.author}}" 
                                                 data-value-status="{{friends.author.online}}" 
-                                                data-value-nickname="{{friends.author}}" class="bi bi-chat-dots-fill"></i>
-                                              {% endif %}</p>
+                                                data-value-nickname="{{friends.author}}" class="bi bi-chat-dots-fill position-absolute mt-4 bottom-0 end-0 rounded-circle"></i>
+                                                <p class="mx-2">{{friends.author}}</p>
+                                                {% endif %} 
+                                            </p>
 
                                         </div> 
                                       </a>
@@ -132,36 +162,37 @@
 </div>
 
 
-          <!-- Modal -->
-          <div class="modal fade" id="createNewChannel" tabindex="-1" aria-labelledby="createNewChannelLabel" aria-hidden="true" data-bs-backdrop="false">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="createNewChannelLabel">Create new channel</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
+
+<!-- Modal -->
+<div class="modal fade" id="createNewChannel" tabindex="-1" aria-labelledby="createNewChannelLabel" aria-hidden="true" data-bs-backdrop="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createNewChannelLabel">Create new channel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
 
 
-                      <div class="create-form">
-                        <form id="create-new-channel" method="POST">
-                          {% csrf_token %}
-                          <div class="row justify-content-md-center">
-                              <div class="col-md-auto">
-                                <input class="form-control" id="room-name-input" type="text" name="room-name-input" size="30">
-                              </div>
-                          </div>
-                      </div>
-                    
-                
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                          <button class="form-label btn btn-info btn-rounded" id="room-name-submit" onclick="createNewChannel(event)">Create</button>
-                        </div>
-                      </form>
+            <div class="create-form">
+              <form id="create-new-channel" method="POST">
+                {% csrf_token %}
+                <div class="row justify-content-md-center">
+                    <div class="col-md-auto">
+                      <input class="form-control" id="room-name-input" type="text" name="room-name-input" size="30">
+                    </div>
                 </div>
-              </div>
             </div>
+          
+      
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="form-label btn btn-info btn-rounded" id="room-name-submit" onclick="createNewChannel(event)">Create</button>
+              </div>
+            </form>
+      </div>
+    </div>
+  </div>
 
 
 
@@ -174,7 +205,7 @@
 
 
 
-{% if friends.author == request.user %}
+{% comment %} {% if friends.author == request.user %}
 {{friends.friend}} <i id="user-status-icon-{{friends.friend}}" 
 data-value-status="{{friends.friend.online}}" 
 data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill"></i>
@@ -182,7 +213,7 @@ data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill"></i>
 {{friends.author}} <i id="user-status-icon-{{friends.author}}" 
 data-value-status="{{friends.author.online}}" 
 data-value-nickname="{{friends.author}}" class="bi bi-chat-dots-fill"></i>
-{% endif %}</p>
+{% endif %}</p> {% endcomment %}
 
 
 <script>
@@ -206,8 +237,8 @@ data-value-nickname="{{friends.author}}" class="bi bi-chat-dots-fill"></i>
 
   
   tmpFriendsList.forEach(function(friend) {
-    console.log(friend.status)
-    updateElementFriend(friend.nickname, friend.status.toLowerCase());
+    usersStatus = (friend.status.toLowerCase() == 'true');
+    updateElementFriend(friend.nickname, usersStatus);
   });
 
 </script>
