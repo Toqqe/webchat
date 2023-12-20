@@ -18,7 +18,9 @@ urlpatterns = [
     path('search/<str:search_query>/', views.search, name="search"),
     path('users/<str:user_name>/', views.users, name="add-friend"),
 
-    path('update/<int:id>', views.update_user_status),
+    path('add-to-channel/<str:room_name>/<str:user_name>', views.add_to_channel, name="add_to_channel"),
+
+    ##path('update/<int:id>', views.update_user_status),
 
     path('directmessage/<str:direct_room>/', views.directMessages),
 

@@ -113,15 +113,12 @@ class ChatCustomer(AsyncWebsocketConsumer):
 
         if online_users not in db_room.first().users.all():
             db_room.first().users.add(self.user)
-
-        db_room.update(users_online=F('users_online') + 1)   
     
     @database_sync_to_async
     def del_sync_db(self):
 
         db_room = ActiveRooms.objects.filter(name=self.room_name)
         db_room.first().users.remove(self.user)
-        db_room.update(users_online=F('users_online') - 1)
 
 
     @database_sync_to_async

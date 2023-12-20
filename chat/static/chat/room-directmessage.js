@@ -56,37 +56,60 @@ function createNewChannel(event){
     const scrollBarChats = document.getElementById("chat-lists");
 
     let chatList = document.getElementById('chat-list');
+    let listItems = chatList.getElementsByTagName('li');
 
     const formData = new FormData(createNewRoom);
-    const newChannel = document.querySelector('#room-name-input').value;
-    
+    const newChannel = document.querySelector('#id_channel_name').value;
+    let newListItem;
     // Wyślij żądanie POST do serwera
+
     fetch('/', {
         method: 'POST',
         body: formData,
     })
     .then(response => response.json())
-    .then(() => {
-        createSocket(newChannel);
-        modalToHide.hide()
-        // modal.setAttribute('aria-hidden', 'true');
-        // modal.style.display = 'none';
-
-        const newListItem = document.createElement('li');
-        newListItem.className = 'chats';
-
-        newListItem.innerHTML = `
-        <a id="room-name" class="friend-link" class="d-flex justify-content-between" onclick="return createSocket(this);">
-            <div class="d-flex justify-content-between">
-            <p class="mb-0">${newChannel}</p>
-            </div>
-        </a>`;
-        chatList.appendChild(newListItem);
-
+    .then((response) => {
         
+        if(response.status == "exist"){
+            modalToHide.hide();
+
+            for(let i = 0; i<listItems.length; i++){
+                let currentValue = listItems[i].getAttribute('data-value');
+                if (currentValue === response.room) {
+                    newListItem = listItems[i];
+                }
+            }
+            createSocket(response.room);
+        }else{
+
+            newListItem = document.createElement('li');
+            newListItem.className = 'chats';
+            if(response.private){
+                newListItem.innerHTML = `
+                <a id="room-name" class="friend-link" class="d-flex justify-content-between" onclick="return createSocket(this);">
+                    <div class="d-flex justify-content-between p-1 mx-1">
+                    <p class="mb-0"><i class="bi bi-file-earmark-lock2 mx-2"></i>${newChannel}</p>
+                    </div>
+                </a>`;
+
+            }else{
+                newListItem.innerHTML = `
+                <a id="room-name" class="friend-link" class="d-flex justify-content-between" onclick="return createSocket(this);">
+                    <div class="d-flex justify-content-between p-1 mx-1">
+                    <p class="mb-0"><i class="bi bi-chat-square-quote mx-2"></i>${newChannel}</p>
+                    </div>
+                </a>`;
+            }
+            chatList.appendChild(newListItem);
+
+            createSocket(newChannel);
+            modalToHide.hide();
+        }
+
         if(previousChat){
             previousChat.classList.remove('active');
         };
+
         newListItem.classList.add('active');
         previousChat = newListItem;
         scrollBarChats.scrollTo(0, scrollBarChats.scrollHeight);

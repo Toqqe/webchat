@@ -18,6 +18,7 @@ async function loadChatinDiv(chatUrl){
   try{
     const response = await fetch(chatUrl);
     if(response.ok){
+      
       const data = await response.json();
       document.getElementById("loadChat").innerHTML = data.chat_content;
 

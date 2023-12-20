@@ -43,6 +43,7 @@
                           <p class="position-relative mx-5" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
 
                             <img src="{{user.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
+
                               <i id="user-status-icon" class="bi bi-chat-dots-fill position-absolute mt-4  translate-middle rounded-circle "></i>
                             </img>
                           </p>
@@ -93,14 +94,21 @@
 
                                   </div>
                                 </div>
-                                
+
                                       <div id="chat-lists">
                                         <ul class="list-unstyled mb-0" id="chat-list">
                                           {% for room in all_rooms %}
-                                              <li class="chats" onclick="return createSocket(this);" > 
+                                              <li class="chats" onclick="return createSocket(this);" data-value="{{room.name}}" > 
                                                 <a id="room-name" class="friend-link" class="d-flex justify-content-between">
                                                   <div class="d-flex justify-content-between p-1 mx-1">
-                                                      <p class="mb-0" >{{room.name}}</p>
+                                                      <p class="mb-0" >
+                                                        {% if room.is_private %}
+                                                        <i class="bi bi-file-earmark-lock2 mx-2"></i>
+                                                        {% else %}
+                                                        <i class="bi bi-chat-square-quote mx-2"></i>
+                                                        {% endif %}
+                                                        {{room.name}}
+                                                      </p>
                                                   </div>
                                                 </a>
                                               </li>
@@ -179,9 +187,10 @@
                 {% csrf_token %}
                 <div class="row justify-content-md-center">
                     <div class="col-md-auto">
-                      <input class="form-control" id="room-name-input" type="text" name="room-name-input" size="30">
+                      {{new_channel_form}}
                     </div>
                 </div>
+                <br>
             </div>
           
       
@@ -192,12 +201,15 @@
             </form>
       </div>
     </div>
-  </div>
+</div>
 
 
 
-<script src={% static "chat/get-csrf.js" %}></script>
+
+
+
 <script src={% static "chat/room-search.js" %}></script>
+<script src={% static "chat/get-csrf.js" %}></script>
 <script src={% static "chat/room.js" %}></script>
 <script src={% static "chat/room-directmessage.js" %}></script>
 <script src={% static "chat/user-status.js" %}></script>
@@ -205,15 +217,6 @@
 
 
 
-{% comment %} {% if friends.author == request.user %}
-{{friends.friend}} <i id="user-status-icon-{{friends.friend}}" 
-data-value-status="{{friends.friend.online}}" 
-data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill"></i>
-{% else %}
-{{friends.author}} <i id="user-status-icon-{{friends.author}}" 
-data-value-status="{{friends.author.online}}" 
-data-value-nickname="{{friends.author}}" class="bi bi-chat-dots-fill"></i>
-{% endif %}</p> {% endcomment %}
 
 
 <script>

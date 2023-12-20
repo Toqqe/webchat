@@ -3,7 +3,7 @@ from django.views import View
 import random
 from django.contrib.auth import authenticate, login
 from django.shortcuts import HttpResponseRedirect
-from .forms import LoginForm, RegistrationForm, UpdateUserForm
+from .forms import LoginForm, RegistrationForm, UpdateUserForm, CreateNewChannel
 from .models import ActiveRooms, CustomUser, MessagesRoom, DirectRooms, DirectMessages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -82,39 +82,56 @@ class LoginView(View):
 class MainChat(View):
 
     def get(self,request):
+
         all_rooms = ActiveRooms.objects.all()
+
+        if request.user.is_authenticated:
+            visible_rooms = all_rooms.filter(Q(is_private=False) | Q(author=request.user) | Q(users=request.user))
+        else:
+        # Jeśli użytkownik nie jest zalogowany, pokaż tylko publiczne pokoje
+            visible_rooms = all_rooms.filter(is_private=False)
+
         user = CustomUser.objects.get(id=request.user.id)
+        new_channel_form = CreateNewChannel()
 
         all_tmp_users = CustomUser.objects.filter(is_guest=True)
         context = {
-            "all_rooms" : all_rooms,
+            "all_rooms" : visible_rooms,
             "friends_room" : user.direct_users.all(),
+            "new_channel_form": new_channel_form,
             #"friends_rooms" : user.friends.all(),
             "all_tmp_users" : all_tmp_users
         }
         return render(request, "chat/chat.html", context)
     
     def post(self, request):
-        ##/////////////////////// TO DO: poprawienie dołączania do pokoju !! tworzy nowy nawet jeżeli taki jest
 
-        if "room-name-input" in request.POST:
-            room_name = request.POST['room-name-input']
-            filter_rooms = ActiveRooms.objects.filter(name=room_name).first()
+        form = CreateNewChannel(request.POST)
 
-            if filter_rooms:
-                return HttpResponseRedirect('/chat/' + room_name)
-            else:
-                new_room = ActiveRooms(name=room_name)
-                new_room.save()
-        
-                chat_content = render_to_string( "chat/test.html", { 
-                    "room_name":room_name,
-                    # "messages":messages,
-                    "online_users":filter_rooms,
-                    },
-                    request=request)
+        if "channel_name" in request.POST:
+            if form.is_valid():
+                
+                room_name = request.POST['channel_name']
+                
+                is_private_value = request.POST.get('is_private', False)
+                is_private_value = is_private_value == 'on' 
+                
+                filter_rooms = ActiveRooms.objects.filter(name=room_name).first()
 
-                return JsonResponse({"chat_content":chat_content})
+                if filter_rooms:
+                    return JsonResponse({"status":"exist", "message":"already created", "room":filter_rooms.name})
+                else:
+                    new_room = ActiveRooms(author=request.user ,name=room_name, is_private=is_private_value)
+                    new_room.users.add(request.user)
+                    new_room.save()
+            
+                    chat_content = render_to_string( "chat/test.html", { 
+                        "room_name":room_name,
+                        "filter_room":filter_rooms,
+                        },
+                        request=request)
+
+                    return JsonResponse({"status":"new", "chat_content":chat_content, "private":is_private_value })
             
 
 def search(request, search_query):
@@ -166,24 +183,24 @@ def directMessages(request, direct_room):
 
 def room(request, room_name):
     
-    filter_rooms = ActiveRooms.objects.filter(name=room_name).first()
+    filter_room = ActiveRooms.objects.filter(name=room_name).first()
 
-    if filter_rooms:
-        messages = MessagesRoom.objects.filter(room=filter_rooms.id)
+    if filter_room:
+        messages = MessagesRoom.objects.filter(room=filter_room.id)
     else:
         messages = []
 
     chat_content = render_to_string( "chat/test.html", { 
         "room_name":room_name,
         "messages":messages,
-        "online_users":filter_rooms,
+        "filter_room":filter_room,
         },
         request=request)
 
     return JsonResponse({"chat_content":chat_content})
 
-def update_user_status(request, id):
-    pass
+# def update_user_status(request, id):
+#     pass
     # user_object = CustomUser.objects.get(id=id)
     
     # if request.user == user_object:
@@ -199,7 +216,8 @@ def update_user_status(request, id):
     #                              "user_status":user_object.online})
             
 
-
+def add_to_channel(request, room_name, user_name):
+    pass
 
 def user_convert(request):
     user_form = UpdateUserForm(instance=request.user)

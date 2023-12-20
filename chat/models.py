@@ -18,9 +18,11 @@ class CustomUser(AbstractUser):
 User = get_user_model()   
 
 class ActiveRooms(models.Model):
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=50)
-    users_online = models.IntegerField(default=0)
     users = models.ManyToManyField(CustomUser, related_name="users", blank=True )
+    
+    is_private = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -37,6 +39,7 @@ class DirectRooms(models.Model):
     
     #author = models.CharField(max_length=100, default=None)
     #friend = models.CharField(max_length=100, default=None)
+
     users = models.ManyToManyField(User, related_name="direct_users", blank=True)
     default = models.CharField(max_length=4, default='')
 

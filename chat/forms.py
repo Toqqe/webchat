@@ -13,6 +13,12 @@ class LoginForm(AuthenticationForm):
     username.widget.attrs['class'] = "form-control"
     password.widget.attrs['class'] = "form-control"
 
+class CreateNewChannel(forms.Form):
+    channel_name = forms.CharField(max_length=30, required=True)
+    is_private = forms.BooleanField(label="Private?", widget=forms.CheckboxInput(), required=False, initial=False)
+
+    channel_name.widget.attrs['class'] = "form-control"
+
 
 
 class RegistrationForm(UserCreationForm):

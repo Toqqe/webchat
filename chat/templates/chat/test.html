@@ -1,12 +1,19 @@
+{% load static %}
 
 <div class="d-flex card chat-box">
             <div class="d-flex bd-highlight friend-bar p-1">
                 <div id="friend-bar" class="mx-2 bd-highlight">{{room_name}}</div>
 
+                    {{ filter_room|json_script:"request-user-id" }}
+                    
+                    {% if filter_room.is_private %}
+                        <i type="button" class="bi bi-plus" data-bs-toggle="modal" data-bs-target="#addUsersToChannel">Add someone</i>
+                    {% endif %}
+
                     <div class="ms-auto bd-highlight dropdown">
                         <i class="bi bi-filter-circle-fill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"> Online</i>
                         <ul id="idOnlineUsers" class="users-online dropdown-menu">
-                            {% for online_user in online_users.users.all %}
+                            {% for online_user in filter_room.users.all %}
                                 {% if online_user.username != request.user.username %}
                                 <li><i class="p-1 bi bi-chat-square-fill "></i>{{online_user}}</li>
                                 {% endif %}
@@ -46,21 +53,36 @@
 
 </div>
 
-
-
             
-    {% comment %} <div class="d-flex justify-content-center"> {% endcomment %}
-            {% comment %}         
-            <div class="online bg-light rounded">
-                    <p class="text-center">Chat users</p>
-                    <hr>
-                    <ul id="idOnlineUsers" class="d-flex flex-column users-online">
-                        {% for online_user in online_users.users.all %}
-                            {% if online_user.username != request.user.username %}
-                            <li><i class="p-1 bi bi-chat-square-fill"></i>{{online_user}}</li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-            </div> 
-            {% endcomment %}
-    
+<!-- Modal -->
+<div class="modal fade" id="addUsersToChannel" tabindex="-1" aria-labelledby="addUsersToChannelLabel" aria-hidden="true" data-bs-backdrop="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addUsersToChannelLabel">Add users</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+
+            <div class="create-form">
+
+
+                <form id="add-to-channel-user" method="POST" class="d-flex" autocomplete="off">
+                    {% csrf_token %}
+                    <input id="add-friend" name="add-friend" class="add-input w-100" type="search" placeholder="Search" aria-label="Search" oninput="SearchUsers();" >
+                    <ul id="add-results" class="dropdown-menu mt-5 rounded w-50"></ul>
+                </form>
+                <br>
+                    {% comment %} <button class="search-button btn" type="submit"><i data-bs-toggle="modal" data-bs-target="#modalUsers" class="bi bi-search"></i></button> {% endcomment %}
+
+            </div>
+      
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {% comment %} <button class="form-label btn btn-info btn-rounded" id="room-name-submit" onclick="createNewChannel(event)">Create</button> {% endcomment %}
+              </div>
+            </form>
+      </div>
+    </div>
+  </div>
