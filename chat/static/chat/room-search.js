@@ -85,9 +85,16 @@ function SearchUsers(){
 }
 
 function addToChannel(e){
-  //add-to-channel/<str:room_name>/<str:user_name>'
-  console.log(e.innerText)
+  const roomName = JSON.parse(document.getElementById('current-room-name').textContent);
+  const modal = document.getElementById('addUsersToChannel');
+  const modalToHide = bootstrap.Modal.getInstance(modal);  
+  const response = fetch('/add-to-channel/'+ roomName + '/' + e.textContent );
 
+  modalToHide.hide();
 
+//   fetch('/' + roomName + '/' + e.textContent, {
+//     method: 'POST',
+//     body: formData,
+// })
 
 }

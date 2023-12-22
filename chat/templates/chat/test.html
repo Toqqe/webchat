@@ -4,9 +4,9 @@
             <div class="d-flex bd-highlight friend-bar p-1">
                 <div id="friend-bar" class="mx-2 bd-highlight">{{room_name}}</div>
 
-                    {{ filter_room|json_script:"request-user-id" }}
-                    
-                    {% if filter_room.is_private %}
+                    {{ filter_room.name|json_script:"current-room-name" }}
+
+                    {% if filter_room.is_private and filter_room.author == user  %}
                         <i type="button" class="bi bi-plus" data-bs-toggle="modal" data-bs-target="#addUsersToChannel">Add someone</i>
                     {% endif %}
 

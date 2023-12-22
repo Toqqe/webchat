@@ -86,7 +86,8 @@ class MainChat(View):
         all_rooms = ActiveRooms.objects.all()
 
         if request.user.is_authenticated:
-            visible_rooms = all_rooms.filter(Q(is_private=False) | Q(author=request.user) | Q(users=request.user))
+            visible_rooms = all_rooms.filter(Q(is_private=False) | Q(author=request.user) | Q(users=request.user)).distinct()
+            print(visible_rooms)
         else:
         # Jeśli użytkownik nie jest zalogowany, pokaż tylko publiczne pokoje
             visible_rooms = all_rooms.filter(is_private=False)
@@ -122,8 +123,8 @@ class MainChat(View):
                     return JsonResponse({"status":"exist", "message":"already created", "room":filter_rooms.name})
                 else:
                     new_room = ActiveRooms(author=request.user ,name=room_name, is_private=is_private_value)
-                    new_room.users.add(request.user)
                     new_room.save()
+                    new_room.users.add(request.user)
             
                     chat_content = render_to_string( "chat/test.html", { 
                         "room_name":room_name,
@@ -217,7 +218,13 @@ def room(request, room_name):
             
 
 def add_to_channel(request, room_name, user_name):
-    pass
+    choosed_user = CustomUser.objects.filter(username=user_name).first()
+    private_room = ActiveRooms.objects.filter(name=room_name).first()
+
+    private_room.users.add(choosed_user)
+
+
+    return JsonResponse({"status":"ok"}) 
 
 def user_convert(request):
     user_form = UpdateUserForm(instance=request.user)

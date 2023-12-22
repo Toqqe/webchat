@@ -798,7 +798,7 @@
         "kind": 6,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "class MainChat(View):\n    def get(self,request):\n        all_rooms = ActiveRooms.objects.all()\n        if request.user.is_authenticated:\n            visible_rooms = all_rooms.filter(Q(is_private=False) | Q(author=request.user) | Q(users=request.user))\n        else:\n        # Jeśli użytkownik nie jest zalogowany, pokaż tylko publiczne pokoje\n            visible_rooms = all_rooms.filter(is_private=False)\n        user = CustomUser.objects.get(id=request.user.id)\n        new_channel_form = CreateNewChannel()",
+        "peekOfCode": "class MainChat(View):\n    def get(self,request):\n        all_rooms = ActiveRooms.objects.all()\n        if request.user.is_authenticated:\n            visible_rooms = all_rooms.filter(Q(is_private=False) | Q(author=request.user) | Q(users=request.user)).distinct()\n            print(visible_rooms)\n        else:\n        # Jeśli użytkownik nie jest zalogowany, pokaż tylko publiczne pokoje\n            visible_rooms = all_rooms.filter(is_private=False)\n        user = CustomUser.objects.get(id=request.user.id)",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -852,7 +852,7 @@
         "kind": 2,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "def add_to_channel(request, room_name, user_name):\n    pass\ndef user_convert(request):\n    user_form = UpdateUserForm(instance=request.user)\n    if request.method == \"POST\":\n        user_form_object = user_form.save(commit=False)\n        user_form_object.save()\n        return HttpResponseRedirect(\"/\")\n    else:\n        user_form = UpdateUserForm(instance=request.user)",
+        "peekOfCode": "def add_to_channel(request, room_name, user_name):\n    choosed_user = CustomUser.objects.filter(username=user_name).first()\n    private_room = ActiveRooms.objects.filter(name=room_name).first()\n    private_room.users.add(choosed_user)\n    return JsonResponse({\"status\":\"ok\"}) \ndef user_convert(request):\n    user_form = UpdateUserForm(instance=request.user)\n    if request.method == \"POST\":\n        user_form_object = user_form.save(commit=False)\n        user_form_object.save()",
         "detail": "chat.views",
         "documentation": {}
     },
