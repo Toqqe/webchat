@@ -14,15 +14,16 @@ async function addToFriend(e){
         <a id="room-name" class="room-link" class="d-flex justify-content-between" data-value="${data.friend_code}" onclick="return createSocketWithUser(this);">
             <div class="d-flex">
                 <p class="mb-0 position-relative">
-                    <img src="{{friends.friend.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
-                    <i id="user-status-icon-{{friends.friend}}"   // poprawic
-                    data-value-status="{{friends.friend.online}}" // poprawic
-                    data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill position-absolute mt-4 bottom-0 end-0 rounded-circle"></i>
+                    <img src="${data.friend_avatar}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
+                    <i id="user-status-icon-${data.friend_added}"
+                    data-value-status="${data.friend_online}"
+                    data-value-nickname="${data.friend_added}" class="bi bi-chat-dots-fill position-absolute mt-4 bottom-0 end-0 rounded-circle"></i>
                     <p class="mx-2">${data.friend_added}</p>
                 </p>
             </div>
-        </a>`
-        ;
+        </a>`;
+
+
         friendsList.appendChild(newListFriendItem);
         createSocketWithUser(newListFriendItem);
 
@@ -131,9 +132,9 @@ async function createSocketWithUser(e){
     //     const data = await response.json();
     //     friendsList.innerHTML += data.friends_list;
     // }
-
-
+    changeChannel(chosedUser);
     const clickedUser = "/directmessage/" + clickedUserValue + "/";
+    
     await loadChatinDiv(clickedUser);
     const idBar = document.getElementById("friend-bar").textContent = chosedUser;
 

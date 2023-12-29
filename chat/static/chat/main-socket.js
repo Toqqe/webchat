@@ -9,11 +9,8 @@ userCurrentStatus = (userCurrentStatus === 'true');
 const userStatus = document.getElementById('user-status-icon');
 
 updateElement(userCurrentStatus);
- 
 
 const mainSocket = new WebSocket( 'ws://'+ window.location.host + '/ws/general/');
-
-
 
 mainSocket.onmessage = function(e){                 // mainSocket.onmessage = (e) =>{
     const data = JSON.parse(e.data);
@@ -27,6 +24,7 @@ mainSocket.onmessage = function(e){                 // mainSocket.onmessage = (e
     //console.log(data)
 };
 mainSocket.onclose = function(e) {
+    console.log(e)
     console.log('Chat socket closed unexpectedly');
 };
 

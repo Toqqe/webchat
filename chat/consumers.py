@@ -150,10 +150,31 @@ class OnlineStatusConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
+        await self.channel_layer.group_send(
+             self.room_group_name,{
+                'type': 'send_user_status',
+                'status': await self.get_current_status(self.user),
+                'user': self.user.username,
+            })
 
-    async def disconnect(self, close_code):
-        pass
-        #await self.change_status()
+    # async def disconnect(self, close_code):
+    #     pass
+    #     #await self.change_status()
+
+    async def websocket_disconnect(self, message):
+        await self.channel_layer.group_send(
+             self.room_group_name,{
+                'type': 'send_user_status',
+                'status': False,
+                'user': self.user.username,
+        })
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+        if message['code'] == None:
+            message['code'] = 1001
+        
+        print('disconnected! ', message)
+        await super().websocket_disconnect(message)
 
 
     async def receive(self, text_data): ##2
@@ -161,7 +182,6 @@ class OnlineStatusConsumer(AsyncWebsocketConsumer):
         print("JSON, user_status: ", text_data_json)
 
         new_status = await self.change_status(text_data_json['username'])
-
 
         await self.channel_layer.group_send(
             self.room_group_name,{
@@ -191,6 +211,12 @@ class OnlineStatusConsumer(AsyncWebsocketConsumer):
         else:
             user_object.online = True
             user_object.save()
+
+        return user_object.online
+    
+    @database_sync_to_async
+    def get_current_status(self, user):
+        user_object = CustomUser.objects.get(username=user)
 
         return user_object.online
 

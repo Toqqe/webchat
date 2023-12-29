@@ -25,6 +25,8 @@ urlpatterns = [
     path('directmessage/<str:direct_room>/', views.directMessages),
 
     path('get-csrf-token/', get_csrf_token, name='get_csrf_token'),
+    path('<path:channel>/', views.chat_redirect, name='chat_redirect'),
+
 
 ]
 

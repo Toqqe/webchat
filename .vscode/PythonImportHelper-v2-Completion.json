@@ -654,7 +654,7 @@
         "kind": 6,
         "importPath": "chat.consumers",
         "description": "chat.consumers",
-        "peekOfCode": "class OnlineStatusConsumer(AsyncWebsocketConsumer):\n    async def connect(self):\n        self.room_name = \"general\"\n        self.room_group_name = \"main_chat_%s\" % self.room_name\n        self.user = self.scope[\"user\"]\n        await self.channel_layer.group_add(self.room_group_name, self.channel_name)\n        await self.accept()\n    async def disconnect(self, close_code):\n        pass\n        #await self.change_status()",
+        "peekOfCode": "class OnlineStatusConsumer(AsyncWebsocketConsumer):\n    async def connect(self):\n        self.room_name = \"general\"\n        self.room_group_name = \"main_chat_%s\" % self.room_name\n        self.user = self.scope[\"user\"]\n        await self.channel_layer.group_add(self.room_group_name, self.channel_name)\n        await self.accept()\n        await self.channel_layer.group_send(\n             self.room_group_name,{\n                'type': 'send_user_status',",
         "detail": "chat.consumers",
         "documentation": {}
     },
@@ -816,7 +816,7 @@
         "kind": 2,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "def search(request, search_query):\n    friends = CustomUser.objects.get(id=request.user.id).friends.all().values('id')\n    filtered_users = CustomUser.objects.filter(username__contains=search_query).exclude(is_superuser=True).exclude(id__in=friends).exclude(username=request.user.username)\n    users_list = [ {'users' : user.username, 'user_img':user.user_img.url } for user in filtered_users ]\n    return JsonResponse({\"users_list\":users_list})\ndef users(request, user_name):\n    typedUser = CustomUser.objects.filter(username=user_name).first()\n    currentUser = CustomUser.objects.get(id=request.user.id)\n    print(currentUser)\n    print(currentUser.friends.all())",
+        "peekOfCode": "def search(request, search_query):\n    friends = CustomUser.objects.get(id=request.user.id).friends.all().values('id')\n    filtered_users = CustomUser.objects.filter(username__contains=search_query).exclude(is_superuser=True).exclude(id__in=friends).exclude(username=request.user.username)\n    users_list = [ {'users' : user.username, 'user_img':user.user_img.url } for user in filtered_users ]\n    return JsonResponse({\"users_list\":users_list})\ndef users(request, user_name):\n    typedUser = CustomUser.objects.filter(username=user_name).first()\n    currentUser = CustomUser.objects.get(id=request.user.id)\n    if typedUser not in currentUser.friends.all():\n        currentUser.friends.add(typedUser)",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -825,7 +825,7 @@
         "kind": 2,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "def users(request, user_name):\n    typedUser = CustomUser.objects.filter(username=user_name).first()\n    currentUser = CustomUser.objects.get(id=request.user.id)\n    print(currentUser)\n    print(currentUser.friends.all())\n    if typedUser not in currentUser.friends.all():\n        currentUser.friends.add(typedUser)\n        newDirectRoom = DirectRooms(author=currentUser, friend=typedUser)\n        newDirectRoom.save()\n        newDirectRoom.users.add(currentUser, typedUser)",
+        "peekOfCode": "def users(request, user_name):\n    typedUser = CustomUser.objects.filter(username=user_name).first()\n    currentUser = CustomUser.objects.get(id=request.user.id)\n    if typedUser not in currentUser.friends.all():\n        currentUser.friends.add(typedUser)\n        newDirectRoom = DirectRooms(author=currentUser, friend=typedUser)\n        newDirectRoom.save()\n        newDirectRoom.users.add(currentUser, typedUser)\n    ##dodać statusy userów\n        return JsonResponse({\"friend_added\":typedUser.username,",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -862,6 +862,15 @@
         "importPath": "chat.views",
         "description": "chat.views",
         "peekOfCode": "def user_convert(request):\n    user_form = UpdateUserForm(instance=request.user)\n    if request.method == \"POST\":\n        user_form_object = user_form.save(commit=False)\n        user_form_object.save()\n        return HttpResponseRedirect(\"/\")\n    else:\n        user_form = UpdateUserForm(instance=request.user)\n    context = {\n        \"form\":user_form",
+        "detail": "chat.views",
+        "documentation": {}
+    },
+    {
+        "label": "chat_redirect",
+        "kind": 2,
+        "importPath": "chat.views",
+        "description": "chat.views",
+        "peekOfCode": "def chat_redirect(request, channel):\n    print(channel)\n#     # filter_room = ActiveRooms.objects.filter(name=channel).first()\n#     # if filter_room:\n#     #     messages = MessagesRoom.objects.filter(room=filter_room.id)\n#     # else:\n#     #     messages = []\n#     # chat_content = render_to_string( \"chat/test.html\", { \n#     #     \"room_name\":channel,\n#     #     \"messages\":messages,",
         "detail": "chat.views",
         "documentation": {}
     },

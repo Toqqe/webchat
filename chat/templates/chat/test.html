@@ -13,11 +13,19 @@
                     <div class="ms-auto bd-highlight dropdown">
                         <i class="bi bi-filter-circle-fill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"> Online</i>
                         <ul id="idOnlineUsers" class="users-online dropdown-menu">
-                            {% for online_user in filter_room.users.all %}
-                                {% if online_user.username != request.user.username %}
-                                <li><i class="p-1 bi bi-chat-square-fill "></i>{{online_user}}</li>
-                                {% endif %}
-                            {% endfor %}
+                            {% if filter_room.is_private %}
+                                {% for online_user in filter_room.users.all %}
+                                    {% if online_user.username != request.user.username %}
+                                    <li><i class="p-1 bi bi-chat-square-fill "></i>{{online_user}}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for online_user in filter_room.users.all %}
+                                    {% if online_user.username != request.user.username %}
+                                    <li><i class="p-1 bi bi-chat-square-fill "></i>{{online_user}}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
                         </ul>
                     </div>
 

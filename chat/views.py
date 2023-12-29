@@ -30,8 +30,6 @@ class GuestView(View):
     def post(self,request):
         print(request.POST)
         form = RegistrationForm(request.POST)
-
-
         if form.is_valid():
             userform = form.save(commit=False)
             userform.username = userform.username.lower()
@@ -147,8 +145,7 @@ def users(request, user_name):
 
     typedUser = CustomUser.objects.filter(username=user_name).first()
     currentUser = CustomUser.objects.get(id=request.user.id)
-    print(currentUser)
-    print(currentUser.friends.all())
+
     if typedUser not in currentUser.friends.all():
         currentUser.friends.add(typedUser)
         newDirectRoom = DirectRooms(author=currentUser, friend=typedUser)
@@ -156,7 +153,10 @@ def users(request, user_name):
         newDirectRoom.users.add(currentUser, typedUser)
     ##dodać statusy userów
         return JsonResponse({"friend_added":typedUser.username,
-                             "friend_code":newDirectRoom.default})
+                             "friend_code":newDirectRoom.default,
+                             "friend_avatar": typedUser.user_img.url,
+                             "friend_online":typedUser.online,
+                             })
 
     return HttpResponseRedirect("/")
 
@@ -197,7 +197,7 @@ def room(request, room_name):
         "filter_room":filter_room,
         },
         request=request)
-
+    
     return JsonResponse({"chat_content":chat_content})
 
 # def update_user_status(request, id):
@@ -241,3 +241,23 @@ def user_convert(request):
     }
 
     return render(request, 'chat/convert.html', context)
+
+def chat_redirect(request, channel):
+    print(channel)
+#     # filter_room = ActiveRooms.objects.filter(name=channel).first()
+
+#     # if filter_room:
+#     #     messages = MessagesRoom.objects.filter(room=filter_room.id)
+#     # else:
+#     #     messages = []
+
+#     # chat_content = render_to_string( "chat/test.html", { 
+#     #     "room_name":channel,
+#     #     "messages":messages,
+#     #     "filter_room":filter_room,
+#     #     },
+#     #     request=request)
+    
+#     # return JsonResponse({"chat_content":chat_content})
+#     ##return JsonResponse({"status":"ok", }) 
+    return HttpResponseRedirect("/")
