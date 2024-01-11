@@ -1,13 +1,49 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block page_title %}Update{% endblock  %}
+
+{% block page_css_files %}
+<link rel="stylesheet" href="{% static "chat/css/convert.css" %}">
+<script src={% static "chat/js/get-csrf.js" %}></script>
+{% endblock  %}
 
 {% block page_content %}
 <div class="container mx-auto mt-5" style="width:50rem;">
-    <form method="POST">
-    {% csrf_token %}
-    {{form}}
-    <button class="btn btn-primary btn-block mb-4">Enter!</button>
+    <form id="convert-form" method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                <span id="username_error" class="error"></span>
+            </div>
+            <div class="mb-3">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                <span id="email_error" class="error"></span>
+            </div>
+            <div class="mb-3">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+                <span id="password_error" class="error"></span>
+            </div>
+        <div class="text-center my-3">
+            <button id="convert-from-button" class="btn btn-primary btn-block">Enter!</button>
+        </div>
     </form>
 </div>
+
+
+<script src={% static "chat/js/convert-acc.js" %}></script>
+
 {% endblock  %}
+
+{% comment %} 
+<div class="container position-absolute top-50 start-50 translate-middle">
+    <span>You have been logged out</span>    
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            <a href="{% url 'login-page' %}">Login Again</a>
+        </small>
+    </div>
+</div>
+ {% endcomment %}

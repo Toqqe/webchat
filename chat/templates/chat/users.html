@@ -1,32 +1,43 @@
 
-<div class="d-flex card chat-box-friends" >
-    <div id="friend-bar" class="friend-bar w-100 p-1">&nbsp</div>
-            <div id="chat-text" class="main-chat card-body ">
+
+<div class="d-flex flex-column bd-highlight chat-box-friends">
+
+            <div class="d-flex bd-highlight chat-header p-2">
+                    <div id="friend-bar" class="mx-2 bd-highlight fw-bolder">&nbsp</div>
+            </div>
+
+            <div id="chat-text" class="bd-highlight main-chat">
                 {% for message in messages %}
                     {% if request.user != message.author %}
                     
-                    <div id="chat-text" class="d-flex justify-content-end p-1">
-                        <p class="mx-1 mt-auto bd-highlight message-opposed p-2 text-break" data-bs-toggle="tooltip" data-bs-placement="top" title="{{message.timestamp | date:"l H:i"}}">{{message.context}}</p>
-                        <p class="bd-highlight mt-auto">
-                            <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
-                        </p>
-                    </div>
+                        <div id="chat-text" class="d-flex justify-content-end ">
+                            <p class="mx-1 mt-auto bd-highlight message-opposed p-2 text-break" data-bs-toggle="tooltip" data-bs-placement="top" title="{{message.timestamp | date:"l H:i"}}">{{message.context}}</p>
+                            <p class="bd-highlight mt-auto">
+                                <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
+                            </p>
+                        </div>
 
-                    {% else %}
-                    <div id="chat-text" class="d-flex p-1">
-                        <p class="bd-highlight mt-auto">
-                            <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
-                        </p>
-                        <p class="mx-1 mt-auto bd-highlight message p-2 text-break" data-bs-toggle="tooltip" data-bs-placement="top" title="{{message.timestamp | date:"l H:i"}}">{{message.context}}</p>
-                    </div>
+                        {% else %}
+
+                        <div id="chat-text" class="d-flex">
+                            <p class="bd-highlight mt-auto">
+                                <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
+                            </p>
+                            <p class="mx-1 mt-auto bd-highlight message p-2 text-break" data-bs-toggle="tooltip" data-bs-placement="top" title="{{message.timestamp | date:"l H:i"}}"  >{{message.context}}</p>
+                        </div>
+                    
                     {% endif %}
                 {% endfor %}
-                
             </div>
 
-            <div class="card-footer row g-0">
-                <input id="chat-message-input" type="text" class="col-md-10"><br>
-                <i id="chat-message-submit" type="button" class="col-md-2 bi bi-send text-center"></i>
+            <div id="chat-footer" class="chat-footer">
+                <div class="d-flex flex-row bd-highlight justify-content-center chat-footer-items mt-2">
+                    <i id="chat-message-submit" type="button"></i> 
+                    <textarea class="form-control bd-highlight " id="chat-message-input" type="text" rows="1" placeholder="Type something.." aria-label="Type something" ></textarea> 
+                    <svg xmlns="http://www.w3.org/2000/svg" id="chat-message-submit" type="button" width="40" height="40" fill="black" class="bi bi-send bd-highlight mx-1 my-auto" viewBox="0 0 16 16" type="button">
+                        <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                    </svg>
+                </div>
             </div>
 </div>
 

@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Chat{% endblock  %}
+
+{% block page_css_files %}
+<link rel="stylesheet" href="{% static "chat/css/chat.css" %}">
+<link rel="stylesheet" href={% static "chat/css/chat_additional.css" %}>
+{{ request.user.username|json_script:"request-user" }}
+{{ request.user.id|json_script:"request-user-id" }}
+{% endblock  %}
+
+{% block page_content %}
+
+
+
+<div class="main-window">
+
+  
+            <nav class="navbar-light">
+
+              <div class="d-flex bd-highlight mb-3">
+                
+                    <div class="p-1 mx-5 bd-highlight logo">
+                      <a class="text-dark text-decoration-none" href="/">     
+                        <img src="{% static 'images/final-logo.png' %}" height="40" alt="Channels Logo" loading="lazy" />
+                      </a>
+                    </div>
+
+                    <div class="mx-auto p-2 bd-highlight">
+                      <form id="search-form" method="POST" class="d-flex search-form" autocomplete="off">
+                        {% csrf_token %}
+                        <input id="search-friend" name="search-friend" class="search-input form-control" type="search" placeholder="Search" aria-label="Search" onclick="SearchUsersOnChat();" >
+                        <ul id="search-results" class="dropdown-menu mt-5 rounded"></ul>
+                      </form>
+                    </div>
+
+
+                    <div class=" p-2 bd-highlight">
+
+                        <div class="dropstart">
+
+                            <span class="position-relative mx-5" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
+                              <img src="{{user.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
+                              
+                              
+                              <svg xmlns="http://www.w3.org/2000/svg" id="user-status-icon" width="13" height="13" fill="white" class="bi bi-circle position-absolute mt-1 end-0 top-50" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                              </svg>
+
+                                {% comment %} <i id="user-status-icon" class="bi bi-circle-fill position-absolute mt-4 translate-middle"></i> {% endcomment %}
+                              </img>
+                            </span>
+
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
+                            <li>
+                              <p class="fw-bold text-center" class="dropdown-item">{{user.username}}</p>
+                            </li>
+                            <hr>
+                            <li>
+                              <div class="text-center">
+                                {% if request.user in all_tmp_users %}
+                                <p class="fw-bolder" class="dropdown-item">You are temporary user, please make <a href="{% url "convert" %}">account</a></p>
+                                {% endif %}
+                              </div>
+                            </li>
+                            <hr>
+                            <li>
+                              <button class="dropdown-item" id="user-status" role="button" name="user-status-toggle">
+                                {{ user.online|json_script:"user-current-status" }}
+                                {% if user.online %}
+                                Set status Offline
+                                {% else %}
+                                Set status Online
+                                {% endif %}
+                              </button>
+                            </li>
+                            <hr>
+                            <li><a class="dropdown-item text-center" href="{% url 'logout-page' %}">Log out</a></li></li>
+                          </ul>
+                        </div>
+                    </div>
+
+              </div>
+            </nav> 
+
+
+
+            <section class="main-section overflow-hidden border-top border-4">
+
+                            <div class="d-flex flex-column left-panel">
+
+                                <div class="d-flex bd-highlight">
+                                  <div class="title p-2 w-100 bd-highlight"><h5>Channels</h5></div>
+                                  <div class="p-2 flex-shrink-1 bd-highlight">
+
+                                  </div>
+                                </div>
+
+                                      <div id="chat-lists">
+                                        <ul class="list-unstyled mb-0" id="chat-list">
+                                          {% for room in all_rooms %}
+                                              <li class="chats" onclick="return createSocket(this);" data-value="{{room.name}}" > 
+                                                <a id="room-name" class="friend-link" class="d-flex justify-content-between">
+                                                  <div class="d-flex justify-content-between p-1 mx-1">
+                                                      <div class="mb-0 text-center" >
+                                                        <span class="icon-wrap">
+                                                        {% if room.is_private %}
+                                                        <i class="bi bi-file-earmark-lock2 mx-2"></i>
+                                                        {% else %}
+                                                        <i class="bi bi-chat-square-quote mx-2"></i>
+                                                        {% endif %}
+                                                        </span>
+                                                        <span class="room-wrap">{{room.name}}</span>
+                                                      </div>
+                                                  </div>
+                                                </a>
+                                              </li>
+                                          {% endfor %}
+                                        </ul>
+                                      
+                                        <hr>
+                                        <ul id="friends" class="friends list-unstyled">
+                                          {% for friends in friends_room %}
+                                          <li class="chats-friends mb-1" data-value="{{friends.default}}" onclick="return createSocket(this);"> 
+                                            <a id="room-name" class="room-link">
+                                              <div class="d-flex mx-2">
+                                                  <span class="mb-0">
+                                                    {% if friends.author == request.user %}
+                                                      <span class="position-relative">
+                                                        <img src="{{friends.friend.user_img.url}}" class="rounded" width="24" height="24" alt="Avatar" loading="lazy"/>
+
+                                                          <svg xmlns="http://www.w3.org/2000/svg" id="user-status-icon-{{friends.friend}}" 
+                                                          data-value-status="{{friends.friend.online}}" 
+                                                          data-value-nickname="{{friends.friend}}" width="13" height="13" fill="currentColor" class="bi bi-circle mt-1 position-absolute end-0 top-50" viewBox="0 0 16 16">
+                                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                          </svg>
+                                                      </span>
+                                                      <span class="mx-2">{{friends.friend}}</span>
+                                                    {% else %}
+                                                      <span class="position-relative">
+                                                        <img src="{{friends.author.user_img.url}}" class="rounded" width="24" height="24" alt="Avatar" loading="lazy" />
+                                                          
+                                                        <svg xmlns="http://www.w3.org/2000/svg" id="user-status-icon-{{friends.author}}" 
+                                                        data-value-status="{{friends.author.online}}" 
+                                                        data-value-nickname="{{friends.author}}" width="13" height="13" fill="currentColor" class="bi bi-circle mt-1 position-absolute end-0 top-50" viewBox="0 0 16 16">
+                                                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                                                        </svg>
+
+                                                       </span>
+                                                      <span class="mx-2">{{friends.author}}</span>
+                                                    {% endif %} 
+                                                  </span>
+                                              </div> 
+                                            </a>
+                                          </li>
+                                          {%empty%}
+                                          {% endfor %}
+                                        </ul>
+                                    </div>
+                            </div>
+                            
+                            <div class="chat-window">
+                              <div class="load-chat-window"id="loadChat"></div>
+                            </div>
+
+                            <div class="d-flex flex-column sidebar-wrap menu">
+
+                              <div class="d-flex flex-column bd-highlight mb-3 text-center">
+                                <div class="bd-highlight">
+                                    <i class="bi bi-cloud-plus" type="button" data-bs-toggle="modal" data-bs-target="#createNewChannel"></i>
+                                </div>
+                                <div class="bd-highlight">
+                                  <i class="bi bi-cloud-plus" type="button" data-bs-toggle="modal" data-bs-target="#createNewChannel"></i>
+                                </div>
+                              </div>
+
+                            </div>  
+
+                            
+                  
+              </section>
+
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="createNewChannel" tabindex="-1" aria-labelledby="createNewChannelLabel" aria-hidden="true" data-bs-backdrop="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createNewChannelLabel">Create new channel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+
+            <div class="create-form">
+              <form id="create-new-channel" method="POST">
+                {% csrf_token %}
+                <div class="row justify-content-md-center">
+                    <div class="col-md-auto">
+                      {{new_channel_form}}
+                    </div>
+                </div>
+                <br>
+            </div>
+          
+      
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="form-label btn btn-info btn-rounded" id="room-name-submit" onclick="createNewChannel(event)">Create</button>
+              </div>
+            </form>
+      </div>
+    </div>
+</div>
+
+
+
+
+
+<script src={% static "chat/js/room-directmessage.js" %}></script>
+<script src={% static "chat/js/room-search.js" %}></script>
+<script src={% static "chat/js/get-csrf.js" %}></script>
+<script src={% static "chat/js/room.js" %}></script>
+<script src={% static "chat/js/user-status.js" %}></script>
+<script src={% static "chat/js/main-socket.js" %}></script>
+
+
+
+
+
+<script>
+
+  let tmpFriendsList = [
+    {% for friends in friends_room %}
+      {% if friends.author == request.user %}
+        {
+          nickname: "{{ friends.friend }}",
+          status: "{{ friends.friend.online }}",
+        },
+        
+      {% else %}
+        {
+          nickname: "{{ friends.author }}",
+          status: "{{ friends.author.online }}",
+        },
+      {% endif %}
+    {% endfor %}
+  ];
+
+  
+  tmpFriendsList.forEach(function(friend) {
+    usersStatus = (friend.status.toLowerCase() == 'true');
+    updateElementFriend(friend.nickname, usersStatus);
+  });
+
+</script>
+
+
+
+{% endblock  %}

@@ -1,0 +1,14 @@
+.container{
+    padding: 3rem;
+    font-size: 1rem;
+    border-radius: 5rem;
+    border: solid 1px black;
+}
+
+.error{
+    color:red;
+}
+.error-from{
+    border: inset 1px red;
+    color:red;
+}

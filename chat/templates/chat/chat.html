@@ -1,250 +1,105 @@
-{% extends "base.html" %}
 {% load static %}
 
-{% block page_title %}Chat{% endblock  %}
+<div class="d-flex flex-column bd-highlight chat-box">
 
-{% block page_css_files %}
-<link rel="stylesheet" href="{% static "chat/chat.css" %}">
-<link rel="stylesheet" href={% static "chat/chat_additional.css" %}>
-{{ request.user.username|json_script:"request-user" }}
-{{ request.user.id|json_script:"request-user-id" }}
-{% endblock  %}
+                <div class="d-flex bd-highlight chat-header p-2">
+                            <div id="friend-bar" class="mx-2 bd-highlight fw-bolder">{{room_name}}</div>
 
-{% block page_content %}
+                            {{ filter_room.name|json_script:"current-room-name" }}
 
+                            {% if filter_room.is_private and filter_room.author == user  %}
+                                <i type="button" class="bi bi-plus" data-bs-toggle="modal" data-bs-target="#addUsersToChannel">Add someone</i>
+                            {% endif %}
 
-
-<div class="main-window">
-
-  
-            <nav class="navbar-light">
-
-              <div class="d-flex bd-highlight mb-3">
+                            <div class="ms-auto bd-highlight dropdown">
+                                <i class="bi bi-filter-circle-fill dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"> Online</i>
+                                <ul id="idOnlineUsers" class="users-online dropdown-menu">
+                                    {% if filter_room.is_private %}
+                                        {% for online_user in filter_room.users.all %}
+                                            {% if online_user.username != request.user.username %}
+                                            <li><i class="p-1 bi bi-chat-square-fill "></i>{{online_user}}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for online_user in filter_room.users.all %}
+                                            {% if online_user.username != request.user.username %}
+                                            <li><i class="p-1 bi bi-chat-square-fill "></i>{{online_user}}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+                </div>
                 
-                    <div class="p-1 mx-5 bd-highlight logo">
-                      <a class="text-dark text-decoration-none" href="/">     
-                        <img src="{% static 'images/final-logo.png' %}" height="40" alt="Channels Logo" loading="lazy" />
-                      </a>
-                    </div>
 
-                    <div class="mx-5 p-2 bd-highlight">
-                      <form id="search-form" method="POST" class="d-flex search-form" autocomplete="off">
-                        {% csrf_token %}
-                        <input id="search-friend" name="search-friend" class="search-input form-control" type="search" placeholder="Search" aria-label="Search" >
-                        {% comment %} <button class="search-button btn" type="submit"><i data-bs-toggle="modal" data-bs-target="#modalUsers" class="bi bi-search"></i></button> {% endcomment %}
-                        <ul id="search-results" class="dropdown-menu mt-5 rounded"></ul>
-                      </form>
-                    </div>
+                <div id="chat-text" class="bd-highlight main-chat">
+                    {% for message in messages %}
+                        {% if request.user != message.author %}
+                        
+                            <div id="chat-text" class="d-flex justify-content-end ">
+                                <p class="mx-1 mt-auto bd-highlight message-opposed p-2 text-break" data-bs-toggle="tooltip" data-bs-placement="top" title="{{message.timestamp | date:"l H:i"}}">{{message.context}}</p>
+                                <p class="bd-highlight mt-auto">
+                                    <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
+                                </p>
+                            </div>
 
+                            {% else %}
 
-                    <div class="ms-auto p-2 bd-highlight">
-
-                        <div class="dropstart">
-                          <p class="position-relative mx-5" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
-
-                            <img src="{{user.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
-
-                              <i id="user-status-icon" class="bi bi-chat-dots-fill position-absolute mt-4  translate-middle rounded-circle "></i>
-                            </img>
-                          </p>
-
-                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuUser">
-                            <li>
-                              <p class="fw-bold text-center">{{user.username}}</p>
-                            </li>
-                            <hr>
-                            <li>
-                              <div class="text-center">
-                                {% if request.user in all_tmp_users %}
-                                <p class="fw-bolder">You are temporary user, please make <a href="{% url "convert" %}">account</a></p>
-                                {% endif %}
-                              </div>
-                            </li>
-                            <hr>
-                            <li>
-                              <a class="dropdown-item" id="user-status" href="#" name="user-status-toggle">
-                                {{ user.online|json_script:"user-current-status" }}
-                                {% if user.online %}
-                                Set status Offline
-                                {% else %}
-                                Set status Online
-                                {% endif %}
-                              </a>
-                            </li>
-
-                          </ul>
-                        </div>
-                    </div>
-
-              </div>
-            </nav> 
-
-
-
-            <section class="main-section overflow-hidden border-top border-4">
-                          <main>
-                              
-                            <div class="d-flex flex-column left-panel">
-
-                                <div class="d-flex bd-highlight">
-                                  <div class="p-2 w-100 bd-highlight"><h5>Channels</h5></div>
-                                  <div class="p-2 flex-shrink-1 bd-highlight">
-
-                                    <i class="bi bi-cloud-plus" type="button" data-bs-toggle="modal" data-bs-target="#createNewChannel"></i>
-
-                                  </div>
-                                </div>
-
-                                      <div id="chat-lists">
-                                        <ul class="list-unstyled mb-0" id="chat-list">
-                                          {% for room in all_rooms %}
-                                              <li class="chats" onclick="return createSocket(this);" data-value="{{room.name}}" > 
-                                                <a id="room-name" class="friend-link" class="d-flex justify-content-between">
-                                                  <div class="d-flex justify-content-between p-1 mx-1">
-                                                      <p class="mb-0" >
-                                                        {% if room.is_private %}
-                                                        <i class="bi bi-file-earmark-lock2 mx-2"></i>
-                                                        {% else %}
-                                                        <i class="bi bi-chat-square-quote mx-2"></i>
-                                                        {% endif %}
-                                                        {{room.name}}
-                                                      </p>
-                                                  </div>
-                                                </a>
-                                              </li>
-                                          {% endfor %}
-                                        </ul>
-                                      </div>
-                                  <hr>
+                            <div id="chat-text" class="d-flex">
+                                <p class="bd-highlight mt-auto">
+                                    <img class="rounded-circle img-message mt-auto" src="{{message.author.user_img.url}}" width="40" height="40" alt="image"/>
+                                </p>
+                                <p class="mx-1 mt-auto bd-highlight message p-2 text-break" data-bs-toggle="tooltip" data-bs-placement="top" title="{{message.timestamp | date:"l H:i"}}"  >{{message.context}}</p>
                             </div>
                         
-                            {% comment %} <p class="position-relative mx-5" type="button" id="dropdownMenuUser" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% endif %}
+                    {% endfor %}
+                </div>
 
-                              <img src="{{user.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
-                                <i id="user-status-icon" class="bi bi-chat-dots-fill position-absolute mt-4  translate-middle rounded-circle "></i>
-                              </img>
-                            </p> {% endcomment %}
-                            
-                            <div class="chat-window">
-                              <div class="load-chat-window"id="loadChat"></div>
-                            </div>
+                <div id="chat-footer" class="chat-footer">
+                    <div class="d-flex flex-row bd-highlight justify-content-center chat-footer-items mt-4">
+                        <i id="chat-message-submit" type="button"></i> 
+                        <textarea class="form-control bd-highlight " id="chat-message-input" type="text" rows="2" placeholder="Type something.." aria-label="Type something" ></textarea> 
+                        <svg xmlns="http://www.w3.org/2000/svg" id="chat-message-submit" type="button" width="40" height="40" fill="black" class="bi bi-send bd-highlight mx-1 my-auto" viewBox="0 0 16 16" type="button">
+                            <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                        </svg>
+                    </div>
+                </div>
 
-                            <div class="friends-list bg-light p-1 rounded">
-
-                              <p class="text-center">Friends</p>
-                              <hr>
-
-                                  <ul id="friends" class="friends list-unstyled d-flex flex-column">
-                                    {% for friends in friends_room %}
-                                    <li class="chats-friends" data-value="{{friends.default}}" onclick="return createSocketWithUser(this);"> 
-                                      <a id="room-name" class="room-link" class="d-flex justify-content-between">
-                                        <div class="d-flex">
-                                            <p class="mb-0 position-relative">
-                                              {% if friends.author == request.user %}
-                                                <img src="{{friends.friend.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
-                                                <i id="user-status-icon-{{friends.friend}}" 
-                                                data-value-status="{{friends.friend.online}}" 
-                                                data-value-nickname="{{friends.friend}}" class="bi bi-chat-dots-fill position-absolute mt-4 bottom-0 end-0 rounded-circle"></i>
-                                                <p class="mx-2">{{friends.friend}}</p>
-                                              {% else %}
-                                                <img src="{{friends.author.user_img.url}}" class="rounded-circle" width="32" height="32" alt="Avatar" loading="lazy" />
-                                                <i id="user-status-icon-{{friends.author}}" 
-                                                data-value-status="{{friends.author.online}}" 
-                                                data-value-nickname="{{friends.author}}" class="bi bi-chat-dots-fill position-absolute mt-4 bottom-0 end-0 rounded-circle"></i>
-                                                <p class="mx-2">{{friends.author}}</p>
-                                                {% endif %} 
-                                            </p>
-
-                                        </div> 
-                                      </a>
-                                    </li>
-                                    {%empty%}
-                                    {% endfor %}
-                                  </ul>
-
-                            </div>
-                          </main>
-                  
-              </section>
-
+                 {% comment %} <div class="chat-footer mx-auto">
+                    <textarea class="form-control" id="chat-message-input" type="text" rows="1" placeholder="Type something.." aria-label="Type something" ></textarea> 
+                    <i id="chat-message-submit" type="button"></i> 
+                </div> {% endcomment %}
 </div>
 
-
-
+            
 <!-- Modal -->
-<div class="modal fade" id="createNewChannel" tabindex="-1" aria-labelledby="createNewChannelLabel" aria-hidden="true" data-bs-backdrop="false">
+<div class="modal fade" id="addUsersToChannel" tabindex="-1" aria-labelledby="addUsersToChannelLabel" aria-hidden="true" data-bs-backdrop="false">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="createNewChannelLabel">Create new channel</h5>
+        <h5 class="modal-title" id="addUsersToChannelLabel">Add users</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
 
 
             <div class="create-form">
-              <form id="create-new-channel" method="POST">
-                {% csrf_token %}
-                <div class="row justify-content-md-center">
-                    <div class="col-md-auto">
-                      {{new_channel_form}}
-                    </div>
-                </div>
+
+
+                <form id="add-to-channel-user" method="POST" class="d-flex" autocomplete="off">
+                    {% csrf_token %}
+                    <input id="add-friend" name="add-friend" class="add-input w-100" type="search" placeholder="Search" aria-label="Search" onclick="SearchUsers();" >
+                    <ul id="add-results" class="dropdown-menu mt-5 rounded w-50"></ul>
+                </form>
                 <br>
             </div>
-          
       
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button class="form-label btn btn-info btn-rounded" id="room-name-submit" onclick="createNewChannel(event)">Create</button>
+                {% comment %} <button class="form-label btn btn-info btn-rounded" id="room-name-submit" onclick="createNewChannel(event)">Create</button> {% endcomment %}
               </div>
             </form>
       </div>
     </div>
-</div>
-
-
-
-
-
-<script src={% static "chat/room-directmessage.js" %}></script>
-<script src={% static "chat/room-search.js" %}></script>
-<script src={% static "chat/get-csrf.js" %}></script>
-<script src={% static "chat/room.js" %}></script>
-<script src={% static "chat/user-status.js" %}></script>
-<script src={% static "chat/main-socket.js" %}></script>
-
-
-
-
-
-<script>
-
-  let tmpFriendsList = [
-    {% for friends in friends_room %}
-      {% if friends.author == request.user %}
-        {
-          nickname: "{{ friends.friend }}",
-          status: "{{ friends.friend.online }}",
-        },
-        
-      {% else %}
-        {
-          nickname: "{{ friends.author }}",
-          status: "{{ friends.author.online }}",
-        },
-      {% endif %}
-    {% endfor %}
-  ];
-
-  
-  tmpFriendsList.forEach(function(friend) {
-    usersStatus = (friend.status.toLowerCase() == 'true');
-    updateElementFriend(friend.nickname, usersStatus);
-  });
-
-</script>
-
-
-
-{% endblock  %}
+  </div>

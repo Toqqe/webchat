@@ -1,12 +1,13 @@
 .message{
     max-width: 80vh;
-    background-color: rgb(132, 0, 255);
+    background-color: #d8e7ff; /*#8400ff*/
     border-radius: 1rem 1rem 1rem 0;
 }
 
 .message-opposed{
     max-width: 80vh;
-    background-color: rgb(132, 0, 255);
+    background: #d8e7ff;
+
     border-radius: 1rem 1rem 0 1rem;
 }
 
@@ -14,3 +15,5 @@
     height: 40px;
     width: 40px;
 }
+
+

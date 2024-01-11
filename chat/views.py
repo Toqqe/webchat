@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from asgiref.sync import async_to_sync
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
@@ -55,11 +56,11 @@ class LoginView(View):
 
 
         if "on" in request.POST['is_guest']:
-
+            print(request)
             entered_login = request.POST['username']
 
             username = entered_login + str(random.randint(0,100000000))
-            email = "djioasjioriashihairiabfuiawehuetemp@temp.pl"
+            email = " "
             password1 = "SAHSDUIhArghli12ghufas12431245@$!$2ASHF"
             is_guest = True
 
@@ -85,7 +86,6 @@ class MainChat(View):
 
         if request.user.is_authenticated:
             visible_rooms = all_rooms.filter(Q(is_private=False) | Q(author=request.user) | Q(users=request.user)).distinct()
-            print(visible_rooms)
         else:
         # Jeśli użytkownik nie jest zalogowany, pokaż tylko publiczne pokoje
             visible_rooms = all_rooms.filter(is_private=False)
@@ -98,10 +98,9 @@ class MainChat(View):
             "all_rooms" : visible_rooms,
             "friends_room" : user.direct_users.all(),
             "new_channel_form": new_channel_form,
-            #"friends_rooms" : user.friends.all(),
             "all_tmp_users" : all_tmp_users
         }
-        return render(request, "chat/chat.html", context)
+        return render(request, "chat/index.html", context)
     
     def post(self, request):
 
@@ -124,7 +123,7 @@ class MainChat(View):
                     new_room.save()
                     new_room.users.add(request.user)
             
-                    chat_content = render_to_string( "chat/test.html", { 
+                    chat_content = render_to_string( "chat/chat.html", { 
                         "room_name":room_name,
                         "filter_room":filter_rooms,
                         },
@@ -134,11 +133,40 @@ class MainChat(View):
             
 
 def search(request, search_query):
-
     friends = CustomUser.objects.get(id=request.user.id).friends.all().values('id')
-    filtered_users = CustomUser.objects.filter(username__contains=search_query).exclude(is_superuser=True).exclude(id__in=friends).exclude(username=request.user.username)
+    filtered_users = CustomUser.objects.filter(username__contains=search_query).exclude(is_superuser=True).exclude(id__in=friends).exclude(id=request.user.id)
     users_list = [ {'users' : user.username, 'user_img':user.user_img.url } for user in filtered_users ]
     return JsonResponse({"users_list":users_list})
+
+
+def search_channel(request, room_name, user_name=None):
+    private_room = ActiveRooms.objects.filter(name=room_name).first()
+    list_users_not_in_room = CustomUser.objects.filter(username__contains=user_name).exclude(id__in=private_room.users.all().values_list('id', flat=True)).exclude(is_superuser=True)
+    
+    users_not_in_room = [ {'users' : user.username, 'user_img':user.user_img.url, "added":True } for user in list_users_not_in_room ]
+    users_in_room = [ {'users' : user.username, 'user_img':user.user_img.url, "added":False } for user in private_room.users.all() ]
+
+    combined_list = users_not_in_room + users_in_room ## can use .extend method
+
+    return JsonResponse({"room_users":combined_list})
+
+@csrf_exempt
+def add_to_channel(request, room_name, user_name):
+
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        private_room = ActiveRooms.objects.filter(name=room_name).first()
+        choosed_user = CustomUser.objects.filter(username=user_name).first()
+
+        if choosed_user in private_room.users.all():
+            private_room.users.remove(choosed_user)
+        else:
+            private_room.users.add(choosed_user)
+
+        return JsonResponse({"status":"ok"})
+    else:
+        return JsonResponse({"status": "error", "message": "Invalid request type"})
+
+
 
 
 def users(request, user_name):
@@ -191,7 +219,7 @@ def room(request, room_name):
     else:
         messages = []
 
-    chat_content = render_to_string( "chat/test.html", { 
+    chat_content = render_to_string( "chat/chat.html", { 
         "room_name":room_name,
         "messages":messages,
         "filter_room":filter_room,
@@ -217,22 +245,22 @@ def room(request, room_name):
     #                              "user_status":user_object.online})
             
 
-def add_to_channel(request, room_name, user_name):
-    choosed_user = CustomUser.objects.filter(username=user_name).first()
-    private_room = ActiveRooms.objects.filter(name=room_name).first()
-
-    private_room.users.add(choosed_user)
-
-
-    return JsonResponse({"status":"ok"}) 
-
 def user_convert(request):
     user_form = UpdateUserForm(instance=request.user)
 
     if request.method == "POST":
-        user_form_object = user_form.save(commit=False)
-        user_form_object.save()
-        return HttpResponseRedirect("/")
+        user_form = UpdateUserForm(request.POST, instance=request.user)
+        print(request.POST)
+        if user_form.is_valid():
+            user_form_object = user_form.save(commit=False)
+            user_form_object.save()
+            return HttpResponseRedirect("/")
+        else:
+            ## return jsoon with errors
+            user_form.full_clean()
+            errors = user_form.errors.as_json()
+            print(errors)
+            return JsonResponse({"status":"failed","errors":errors})
     else:
         user_form = UpdateUserForm(instance=request.user)
 
@@ -243,7 +271,7 @@ def user_convert(request):
     return render(request, 'chat/convert.html', context)
 
 def chat_redirect(request, channel):
-    print(channel)
+
 #     # filter_room = ActiveRooms.objects.filter(name=channel).first()
 
 #     # if filter_room:
@@ -251,7 +279,7 @@ def chat_redirect(request, channel):
 #     # else:
 #     #     messages = []
 
-#     # chat_content = render_to_string( "chat/test.html", { 
+#     # chat_content = render_to_string( "chat/chat.html", { 
 #     #     "room_name":channel,
 #     #     "messages":messages,
 #     #     "filter_room":filter_room,

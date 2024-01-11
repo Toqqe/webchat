@@ -293,6 +293,14 @@
         "documentation": {}
     },
     {
+        "label": "ValidationError",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
         "label": "secrets",
         "kind": 6,
         "isExtraImport": true,
@@ -496,6 +504,14 @@
         "documentation": {}
     },
     {
+        "label": "csrf_exempt",
+        "importPath": "django.views.decorators.csrf",
+        "description": "django.views.decorators.csrf",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.csrf",
+        "documentation": {}
+    },
+    {
         "label": "os",
         "kind": 6,
         "isExtraImport": true,
@@ -672,7 +688,7 @@
         "kind": 6,
         "importPath": "chat.forms",
         "description": "chat.forms",
-        "peekOfCode": "class LoginForm(AuthenticationForm):\n    username = forms.CharField(max_length=60, required=True)\n    password = forms.CharField(max_length=65, widget=forms.PasswordInput)\n    is_guest = forms.BooleanField(label=\"Enter as a guest: \", widget=forms.CheckboxInput(), required=False)\n    username.widget.attrs['class'] = \"form-control\"\n    password.widget.attrs['class'] = \"form-control\"\nclass CreateNewChannel(forms.Form):\n    channel_name = forms.CharField(max_length=30, required=True)\n    is_private = forms.BooleanField(label=\"Private?\", widget=forms.CheckboxInput(), required=False, initial=False)\n    channel_name.widget.attrs['class'] = \"form-control\"",
+        "peekOfCode": "class LoginForm(AuthenticationForm):\n    username = forms.CharField(max_length=20, required=True)\n    password = forms.CharField(max_length=65, widget=forms.PasswordInput)\n    is_guest = forms.BooleanField(label=\"Enter as a guest: \", widget=forms.CheckboxInput(), required=False)\n    username.widget.attrs['class'] = \"form-control\"\n    password.widget.attrs['class'] = \"form-control\"\nclass CreateNewChannel(forms.Form):\n    channel_name = forms.CharField(max_length=30, required=True)\n    is_private = forms.BooleanField(label=\"Private?\", widget=forms.CheckboxInput(), required=False, initial=False)\n    channel_name.widget.attrs['class'] = \"form-control\"",
         "detail": "chat.forms",
         "documentation": {}
     },
@@ -699,7 +715,16 @@
         "kind": 6,
         "importPath": "chat.forms",
         "description": "chat.forms",
-        "peekOfCode": "class UpdateUserForm(forms.ModelForm):\n    username = forms.CharField(max_length=60, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))\n    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))\n    password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control'}))\n    class Meta:\n        model = CustomUser\n        fields = ['username', 'email', 'password']",
+        "peekOfCode": "class UpdateUserForm(forms.ModelForm):\n    username = forms.CharField(max_length=60, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}) )##, validators=[validate_login])\n    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))\n    password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control'}))\n    class Meta:\n        model = CustomUser\n        fields = ['username', 'email', 'password']",
+        "detail": "chat.forms",
+        "documentation": {}
+    },
+    {
+        "label": "validate_login",
+        "kind": 2,
+        "importPath": "chat.forms",
+        "description": "chat.forms",
+        "peekOfCode": "def validate_login(value):\n    print(\"Walidacja!\")\n    if User.objects.filter(username = value).exists():\n        raise ValidationError( (f\"{value} is taken.\"))\nclass UpdateUserForm(forms.ModelForm):\n    username = forms.CharField(max_length=60, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}) )##, validators=[validate_login])\n    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))\n    password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control'}))\n    class Meta:\n        model = CustomUser",
         "detail": "chat.forms",
         "documentation": {}
     },
@@ -708,7 +733,7 @@
         "kind": 6,
         "importPath": "chat.models",
         "description": "chat.models",
-        "peekOfCode": "class CustomUser(AbstractUser):\n    is_guest = models.BooleanField(default=False)\n    user_img = models.ImageField(upload_to=\"user_images\", default=\"blank-usr-img.png\")\n    friends = models.ManyToManyField('self', blank=True )\n    online = models.BooleanField(default=False)\nUser = get_user_model()   \nclass ActiveRooms(models.Model):\n    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)\n    name = models.CharField(max_length=50)\n    users = models.ManyToManyField(CustomUser, related_name=\"users\", blank=True )",
+        "peekOfCode": "class CustomUser(AbstractUser):\n    is_guest = models.BooleanField(default=False)\n    user_img = models.ImageField(upload_to=\"user_images\", default=\"blank-usr-img.png\")\n    friends = models.ManyToManyField('self', blank=True )\n    online = models.BooleanField(default=False)\nUser = get_user_model()   \nclass ActiveRooms(models.Model):\n    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)\n    name = models.CharField(max_length=20)\n    users = models.ManyToManyField(CustomUser, related_name=\"users\", blank=True )",
         "detail": "chat.models",
         "documentation": {}
     },
@@ -717,7 +742,7 @@
         "kind": 6,
         "importPath": "chat.models",
         "description": "chat.models",
-        "peekOfCode": "class ActiveRooms(models.Model):\n    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)\n    name = models.CharField(max_length=50)\n    users = models.ManyToManyField(CustomUser, related_name=\"users\", blank=True )\n    is_private = models.BooleanField(default=False)\n    def __str__(self):\n        return self.name\nclass MessagesRoom(models.Model):\n    room = models.ForeignKey(ActiveRooms, on_delete=models.CASCADE,null=True )\n    author = models.ForeignKey(User,on_delete=models.CASCADE, related_name=\"message_author\")",
+        "peekOfCode": "class ActiveRooms(models.Model):\n    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)\n    name = models.CharField(max_length=20)\n    users = models.ManyToManyField(CustomUser, related_name=\"users\", blank=True )\n    is_private = models.BooleanField(default=False)\n    def __str__(self):\n        return self.name\nclass MessagesRoom(models.Model):\n    room = models.ForeignKey(ActiveRooms, on_delete=models.CASCADE,null=True )\n    author = models.ForeignKey(User,on_delete=models.CASCADE, related_name=\"message_author\")",
         "detail": "chat.models",
         "documentation": {}
     },
@@ -753,7 +778,7 @@
         "kind": 5,
         "importPath": "chat.models",
         "description": "chat.models",
-        "peekOfCode": "User = get_user_model()   \nclass ActiveRooms(models.Model):\n    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)\n    name = models.CharField(max_length=50)\n    users = models.ManyToManyField(CustomUser, related_name=\"users\", blank=True )\n    is_private = models.BooleanField(default=False)\n    def __str__(self):\n        return self.name\nclass MessagesRoom(models.Model):\n    room = models.ForeignKey(ActiveRooms, on_delete=models.CASCADE,null=True )",
+        "peekOfCode": "User = get_user_model()   \nclass ActiveRooms(models.Model):\n    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)\n    name = models.CharField(max_length=20)\n    users = models.ManyToManyField(CustomUser, related_name=\"users\", blank=True )\n    is_private = models.BooleanField(default=False)\n    def __str__(self):\n        return self.name\nclass MessagesRoom(models.Model):\n    room = models.ForeignKey(ActiveRooms, on_delete=models.CASCADE,null=True )",
         "detail": "chat.models",
         "documentation": {}
     },
@@ -771,7 +796,7 @@
         "kind": 5,
         "importPath": "chat.urls",
         "description": "chat.urls",
-        "peekOfCode": "urlpatterns = [\n    path('register', views.GuestView.as_view(), name=\"register-page\"),\n    path('login', views.LoginView.as_view(), name=\"login-page\"),\n    path('chat/<str:room_name>/', views.room, name=\"room-url\"),\n    path('', views.MainChat.as_view()),\n    path('convert', views.user_convert, name=\"convert\"),\n    path('search/<str:search_query>/', views.search, name=\"search\"),\n    path('users/<str:user_name>/', views.users, name=\"add-friend\"),\n    path('add-to-channel/<str:room_name>/<str:user_name>', views.add_to_channel, name=\"add_to_channel\"),\n    ##path('update/<int:id>', views.update_user_status),",
+        "peekOfCode": "urlpatterns = [\n    path('register', views.GuestView.as_view(), name=\"register-page\"),\n    path('logout', auth_views.LogoutView.as_view(template_name=\"chat/logout.html\"), name=\"logout-page\"),\n    path('login', views.LoginView.as_view(), name=\"login-page\"),\n    path('chat/<str:room_name>/', views.room, name=\"room-url\"),\n    path('', views.MainChat.as_view()),\n    path('convert', views.user_convert, name=\"convert\"),\n    path('search/<str:search_query>/', views.search, name=\"search\"),\n    path('users/<str:user_name>/', views.users, name=\"add-friend\"),\n    path('search-channel/<str:room_name>/', views.search_channel, name=\"add_to_channel\"),",
         "detail": "chat.urls",
         "documentation": {}
     },
@@ -789,7 +814,7 @@
         "kind": 6,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "class LoginView(View):\n    def get(self, request):\n        form = LoginForm()\n        return render(request, 'chat/login.html', {'form': form})\n    def post(self,request):\n        form = LoginForm(request.POST)\n        if \"on\" in request.POST['is_guest']:\n            entered_login = request.POST['username']\n            username = entered_login + str(random.randint(0,100000000))\n            email = \"djioasjioriashihairiabfuiawehuetemp@temp.pl\"",
+        "peekOfCode": "class LoginView(View):\n    def get(self, request):\n        form = LoginForm()\n        return render(request, 'chat/login.html', {'form': form})\n    def post(self,request):\n        form = LoginForm(request.POST)\n        if \"on\" in request.POST['is_guest']:\n            print(request)\n            entered_login = request.POST['username']\n            username = entered_login + str(random.randint(0,100000000))",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -798,7 +823,7 @@
         "kind": 6,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "class MainChat(View):\n    def get(self,request):\n        all_rooms = ActiveRooms.objects.all()\n        if request.user.is_authenticated:\n            visible_rooms = all_rooms.filter(Q(is_private=False) | Q(author=request.user) | Q(users=request.user)).distinct()\n            print(visible_rooms)\n        else:\n        # Jeśli użytkownik nie jest zalogowany, pokaż tylko publiczne pokoje\n            visible_rooms = all_rooms.filter(is_private=False)\n        user = CustomUser.objects.get(id=request.user.id)",
+        "peekOfCode": "class MainChat(View):\n    def get(self,request):\n        all_rooms = ActiveRooms.objects.all()\n        if request.user.is_authenticated:\n            visible_rooms = all_rooms.filter(Q(is_private=False) | Q(author=request.user) | Q(users=request.user)).distinct()\n        else:\n        # Jeśli użytkownik nie jest zalogowany, pokaż tylko publiczne pokoje\n            visible_rooms = all_rooms.filter(is_private=False)\n        user = CustomUser.objects.get(id=request.user.id)\n        new_channel_form = CreateNewChannel()",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -816,7 +841,25 @@
         "kind": 2,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "def search(request, search_query):\n    friends = CustomUser.objects.get(id=request.user.id).friends.all().values('id')\n    filtered_users = CustomUser.objects.filter(username__contains=search_query).exclude(is_superuser=True).exclude(id__in=friends).exclude(username=request.user.username)\n    users_list = [ {'users' : user.username, 'user_img':user.user_img.url } for user in filtered_users ]\n    return JsonResponse({\"users_list\":users_list})\ndef users(request, user_name):\n    typedUser = CustomUser.objects.filter(username=user_name).first()\n    currentUser = CustomUser.objects.get(id=request.user.id)\n    if typedUser not in currentUser.friends.all():\n        currentUser.friends.add(typedUser)",
+        "peekOfCode": "def search(request, search_query):\n    friends = CustomUser.objects.get(id=request.user.id).friends.all().values('id')\n    filtered_users = CustomUser.objects.filter(username__contains=search_query).exclude(is_superuser=True).exclude(id__in=friends).exclude(id=request.user.id)\n    users_list = [ {'users' : user.username, 'user_img':user.user_img.url } for user in filtered_users ]\n    return JsonResponse({\"users_list\":users_list})\ndef search_channel(request, room_name, user_name=None):\n    private_room = ActiveRooms.objects.filter(name=room_name).first()\n    list_users_not_in_room = CustomUser.objects.filter(username__contains=user_name).exclude(id__in=private_room.users.all().values_list('id', flat=True)).exclude(is_superuser=True)\n    users_not_in_room = [ {'users' : user.username, 'user_img':user.user_img.url, \"added\":True } for user in list_users_not_in_room ]\n    users_in_room = [ {'users' : user.username, 'user_img':user.user_img.url, \"added\":False } for user in private_room.users.all() ]",
+        "detail": "chat.views",
+        "documentation": {}
+    },
+    {
+        "label": "search_channel",
+        "kind": 2,
+        "importPath": "chat.views",
+        "description": "chat.views",
+        "peekOfCode": "def search_channel(request, room_name, user_name=None):\n    private_room = ActiveRooms.objects.filter(name=room_name).first()\n    list_users_not_in_room = CustomUser.objects.filter(username__contains=user_name).exclude(id__in=private_room.users.all().values_list('id', flat=True)).exclude(is_superuser=True)\n    users_not_in_room = [ {'users' : user.username, 'user_img':user.user_img.url, \"added\":True } for user in list_users_not_in_room ]\n    users_in_room = [ {'users' : user.username, 'user_img':user.user_img.url, \"added\":False } for user in private_room.users.all() ]\n    combined_list = users_not_in_room + users_in_room ## can use .extend method\n    return JsonResponse({\"room_users\":combined_list})\n@csrf_exempt\ndef add_to_channel(request, room_name, user_name):\n    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':",
+        "detail": "chat.views",
+        "documentation": {}
+    },
+    {
+        "label": "add_to_channel",
+        "kind": 2,
+        "importPath": "chat.views",
+        "description": "chat.views",
+        "peekOfCode": "def add_to_channel(request, room_name, user_name):\n    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':\n        private_room = ActiveRooms.objects.filter(name=room_name).first()\n        choosed_user = CustomUser.objects.filter(username=user_name).first()\n        if choosed_user in private_room.users.all():\n            private_room.users.remove(choosed_user)\n        else:\n            private_room.users.add(choosed_user)\n        return JsonResponse({\"status\":\"ok\"})\n    else:",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -843,16 +886,7 @@
         "kind": 2,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "def room(request, room_name):\n    filter_room = ActiveRooms.objects.filter(name=room_name).first()\n    if filter_room:\n        messages = MessagesRoom.objects.filter(room=filter_room.id)\n    else:\n        messages = []\n    chat_content = render_to_string( \"chat/test.html\", { \n        \"room_name\":room_name,\n        \"messages\":messages,\n        \"filter_room\":filter_room,",
-        "detail": "chat.views",
-        "documentation": {}
-    },
-    {
-        "label": "add_to_channel",
-        "kind": 2,
-        "importPath": "chat.views",
-        "description": "chat.views",
-        "peekOfCode": "def add_to_channel(request, room_name, user_name):\n    choosed_user = CustomUser.objects.filter(username=user_name).first()\n    private_room = ActiveRooms.objects.filter(name=room_name).first()\n    private_room.users.add(choosed_user)\n    return JsonResponse({\"status\":\"ok\"}) \ndef user_convert(request):\n    user_form = UpdateUserForm(instance=request.user)\n    if request.method == \"POST\":\n        user_form_object = user_form.save(commit=False)\n        user_form_object.save()",
+        "peekOfCode": "def room(request, room_name):\n    filter_room = ActiveRooms.objects.filter(name=room_name).first()\n    if filter_room:\n        messages = MessagesRoom.objects.filter(room=filter_room.id)\n    else:\n        messages = []\n    chat_content = render_to_string( \"chat/chat.html\", { \n        \"room_name\":room_name,\n        \"messages\":messages,\n        \"filter_room\":filter_room,",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -861,7 +895,7 @@
         "kind": 2,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "def user_convert(request):\n    user_form = UpdateUserForm(instance=request.user)\n    if request.method == \"POST\":\n        user_form_object = user_form.save(commit=False)\n        user_form_object.save()\n        return HttpResponseRedirect(\"/\")\n    else:\n        user_form = UpdateUserForm(instance=request.user)\n    context = {\n        \"form\":user_form",
+        "peekOfCode": "def user_convert(request):\n    user_form = UpdateUserForm(instance=request.user)\n    if request.method == \"POST\":\n        user_form = UpdateUserForm(request.POST, instance=request.user)\n        print(request.POST)\n        if user_form.is_valid():\n            user_form_object = user_form.save(commit=False)\n            user_form_object.save()\n            return HttpResponseRedirect(\"/\")\n        else:",
         "detail": "chat.views",
         "documentation": {}
     },
@@ -870,7 +904,7 @@
         "kind": 2,
         "importPath": "chat.views",
         "description": "chat.views",
-        "peekOfCode": "def chat_redirect(request, channel):\n    print(channel)\n#     # filter_room = ActiveRooms.objects.filter(name=channel).first()\n#     # if filter_room:\n#     #     messages = MessagesRoom.objects.filter(room=filter_room.id)\n#     # else:\n#     #     messages = []\n#     # chat_content = render_to_string( \"chat/test.html\", { \n#     #     \"room_name\":channel,\n#     #     \"messages\":messages,",
+        "peekOfCode": "def chat_redirect(request, channel):\n#     # filter_room = ActiveRooms.objects.filter(name=channel).first()\n#     # if filter_room:\n#     #     messages = MessagesRoom.objects.filter(room=filter_room.id)\n#     # else:\n#     #     messages = []\n#     # chat_content = render_to_string( \"chat/chat.html\", { \n#     #     \"room_name\":channel,\n#     #     \"messages\":messages,\n#     #     \"filter_room\":filter_room,",
         "detail": "chat.views",
         "documentation": {}
     },

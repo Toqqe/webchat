@@ -47,19 +47,19 @@ function updateElementFriend(users, usersStatus){
     let userStatusFriend = document.getElementById('user-status-icon-' + users);
 
     if(usersStatus){
-        userStatusFriend.style.color = "green";
+        userStatusFriend.style.backgroundColor = "green";
     }else{
-        userStatusFriend.style.color = "black";
+        userStatusFriend.style.backgroundColor = "grey";
     }
 }
 
 function updateElement(userCurrentStatus){
     
     if(userCurrentStatus){
-        userStatus.style.color = "green";
+        userStatus.style.backgroundColor = "green";
         userButton.innerText = 'Set status Offline'
     }else{
-        userStatus.style.color = "black";
+        userStatus.style.backgroundColor = "grey";
         userButton.innerText = 'Set status Online'
     }
 }
